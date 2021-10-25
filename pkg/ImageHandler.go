@@ -4,29 +4,22 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"image/png"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 )
 
 type ImageHandler struct {
-	Service ImageService
+	Service MongoImageService
 }
 
 func (h ImageHandler) GetResult(c *gin.Context) {
 
-	buffer := new(bytes.Buffer)
-	image := h.Service.GetReference("")
-	if err := png.Encode(buffer, image); err != nil {
-		log.Println("unable to encode image.")
-	}
-
+	buff := h.Service.DownloadImage("ref1.png")
 	c.Header("Content-Type", "image/png")
-	c.Header("Content-Length", strconv.Itoa(len(buffer.Bytes())))
-
+	c.Header("Content-Length", strconv.Itoa(len(buff)))
+	c.Writer.Write(buff)
 }
 
 func (h ImageHandler) GetOriginImage(c *gin.Context) {
@@ -42,15 +35,10 @@ func (h ImageHandler) Upload(c *gin.Context) {
 		return
 	}
 	filename := header.Filename
-	out, err := os.Create("/Users/akarpov/Projects/Jameson/images/" + filename)
-	if err != nil {
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
 		log.Fatal(err)
 	}
-	defer out.Close()
-	_, err = io.Copy(out, file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	filepath := "http://localhost:8080/file/" + filename
-	c.JSON(http.StatusOK, gin.H{"filepath": filepath})
+	h.Service.UploadImage(buf.Bytes(), filename)
+	c.JSON(http.StatusOK, gin.H{"filepath": filename})
 }

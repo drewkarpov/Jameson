@@ -1,6 +1,8 @@
 package pkg
 
 import (
+	"bytes"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"image"
 	"image/png"
@@ -21,14 +23,25 @@ type ImageContainer struct {
 }
 
 func (i *ImageWrapper) SetReference(filename string) {
-	i.Reference = loadImage(filename)
+	i.Reference = i.loadImage(filename)
 	if i.Reference.Error != nil {
 		panic(i.Reference.Error)
 	}
 }
 
+func (i *ImageWrapper) GetReferenceBytes() []byte {
+	buff := new(bytes.Buffer)
+
+	// encode image to buffer
+	err := png.Encode(buff, i.Reference.Body)
+	if err != nil {
+		fmt.Println("failed to create buffer", err)
+	}
+	return buff.Bytes()
+}
+
 func (i *ImageWrapper) SetCandidate(filename string) {
-	i.Candidate = loadImage(filename)
+	i.Candidate = i.loadImage(filename)
 	if i.Candidate.Error != nil {
 		panic(i.Candidate.Error)
 	}
@@ -55,8 +68,8 @@ func (i *ImageWrapper) MustSaveImage(img image.Image, output string) {
 	png.Encode(f, img)
 }
 
-func loadImage(filename string) ImageContainer {
-	f := mustOpen(filename)
+func (i *ImageWrapper) loadImage(filename string) ImageContainer {
+	f := i.MustOpen(filename)
 	defer f.Close()
 
 	img, _, err := image.Decode(f)
@@ -67,7 +80,7 @@ func loadImage(filename string) ImageContainer {
 	return ImageContainer{Body: img, Error: err}
 }
 
-func mustOpen(filename string) *os.File {
+func (i *ImageWrapper) MustOpen(filename string) *os.File {
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
