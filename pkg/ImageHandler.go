@@ -2,11 +2,15 @@ package pkg
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"image"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -19,7 +23,41 @@ func (h ImageHandler) GetResult(c *gin.Context) {
 	buff := h.Service.DownloadImage("ref1.png")
 	c.Header("Content-Type", "image/png")
 	c.Header("Content-Length", strconv.Itoa(len(buff)))
-	c.Writer.Write(buff)
+	wrapper := ImageWrapper{}
+	wrapper.SetReference("./images/ref2.png")
+
+	img, _, err := image.Decode(bytes.NewReader(buff))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	img2, perc := GetImageDifference(wrapper.Reference.Body, img)
+
+	println(perc)
+	buf := new(bytes.Buffer)
+	errr := png.Encode(buf, img2)
+
+	if errr != nil {
+		log.Fatalln(err)
+	}
+
+	send_s3 := buf.Bytes()
+
+	c.Writer.Write(send_s3)
+}
+
+func (h ImageHandler) GetProjects(c *gin.Context) {
+
+	projects := h.Service.GetProjects()
+	jsonPessoal, err := json.Marshal(projects)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.Header("content-type", "application/json")
+	fmt.Fprintf(os.Stdout, "%s", jsonPessoal) // still fine here .
+	// it is fine because you are formating []byte into string using fmt and
+	// printing it on console. `%s` makes sures that it echos as string.
+
+	c.JSON(http.StatusOK, projects)
 }
 
 func (h ImageHandler) GetOriginImage(c *gin.Context) {

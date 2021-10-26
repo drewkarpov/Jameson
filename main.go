@@ -18,6 +18,8 @@ func main() {
 
 	mongoService := pkg.InitMongoService()
 
+	//mongoService.CreateProject("huntbox")
+
 	wrapper := pkg.ImageWrapper{}
 	wrapper.SetReference("./images/refs4.png")
 	wrapper.SetCandidate("./images/ref2.png")
@@ -38,6 +40,7 @@ func main() {
 	{
 		api.GET("/path/:path", imgHandler.GetOriginImage)
 		api.GET("/result", imgHandler.GetResult)
+		api.GET("/projects", imgHandler.GetProjects)
 		api.POST("/upload", imgHandler.Upload)
 	}
 

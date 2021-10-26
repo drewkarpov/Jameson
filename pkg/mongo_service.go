@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,15 +15,45 @@ import (
 )
 
 type MongoImageService struct {
-	Database *mongo.Database
+	Database           *mongo.Database
+	ProjectsCollection *mongo.Collection
 }
 
 func InitMongoService() MongoImageService {
 	ctx, _ := context.WithTimeout(context.Background(), 40*time.Second)
 	var cred = options.Credential{Username: "mongoadmin", Password: "mongoadmin"}
-	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017").SetAuth(cred))
+	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://89.223.26.208:27017").SetAuth(cred))
 	database := client.Database("jameson")
-	return MongoImageService{Database: database}
+	project := database.Collection("projects")
+	return MongoImageService{Database: database, ProjectsCollection: project}
+}
+
+func (ms MongoImageService) CreateProject(name string) interface{} {
+	project := Project{Name: name}
+	project.ID = primitive.NewObjectID()
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	result, err := ms.ProjectsCollection.InsertOne(ctx, project)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result.InsertedID
+}
+
+func (ms MongoImageService) GetProjects() interface{} {
+	var projects []Project
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	cursor, _ := ms.ProjectsCollection.Find(ctx, bson.M{})
+
+	if cursor != nil {
+		defer cursor.Close(ctx)
+		for cursor.Next(ctx) {
+			var person Project
+			cursor.Decode(&person)
+			projects = append(projects, person)
+		}
+		return projects
+	}
+	return projects
 }
 
 func (ms MongoImageService) UploadImage(data []byte, filename string) {
