@@ -51,9 +51,26 @@ func (ms MongoImageService) GetProjects() interface{} {
 			cursor.Decode(&person)
 			projects = append(projects, person)
 		}
-		return projects
 	}
 	return projects
+}
+
+func (ms MongoImageService) AddTestContainerToProject(id string, testContainer TestContainer) {
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	testContainer.ID = primitive.NewObjectID()
+	objID, errr := primitive.ObjectIDFromHex(id)
+	if errr != nil {
+		panic(errr)
+	}
+	_, err := ms.ProjectsCollection.UpdateOne(
+		ctx,
+		bson.M{"id": objID},
+		bson.M{"$push": bson.M{"containers": testContainer}},
+	)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
 
 func (ms MongoImageService) UploadImage(data []byte, filename string) {

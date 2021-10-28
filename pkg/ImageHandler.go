@@ -60,6 +60,17 @@ func (h ImageHandler) GetProjects(c *gin.Context) {
 	c.JSON(http.StatusOK, projects)
 }
 
+func (h ImageHandler) CreateTest(c *gin.Context) {
+	testContainer := TestContainerDTO{}
+	err := json.NewDecoder(c.Request.Body).Decode(&testContainer)
+
+	if err != nil {
+		c.String(http.StatusUnprocessableEntity, "invalid body")
+		return
+	}
+	h.Service.AddTestContainerToProject(testContainer.ProjectId, TestContainer{Name: testContainer.Name, ReferenceId: testContainer.ReferenceId, Tests: []Test{}})
+}
+
 func (h ImageHandler) GetOriginImage(c *gin.Context) {
 	path := c.Param("path")
 	//image := h.Service.GetReference("")

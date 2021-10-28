@@ -2,20 +2,13 @@ package main
 
 import (
 	"Jameson/pkg"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
 )
 
 const mainDirectory = "./images"
 
 func main() {
-	if _, err := os.Stat(mainDirectory); os.IsNotExist(err) {
-		err := os.Mkdir(mainDirectory, os.ModeDir)
-		fmt.Errorf("cannot create folder\n error : %s", err)
-	}
-
 	mongoService := pkg.InitMongoService()
 
 	//mongoService.CreateProject("huntbox")
@@ -42,6 +35,7 @@ func main() {
 		api.GET("/result", imgHandler.GetResult)
 		api.GET("/projects", imgHandler.GetProjects)
 		api.POST("/upload", imgHandler.Upload)
+		api.POST("/create/test", imgHandler.CreateTest)
 	}
 
 	err := http.ListenAndServe(":3333", router)
