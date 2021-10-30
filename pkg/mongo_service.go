@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,8 +14,9 @@ import (
 )
 
 type MongoImageService struct {
-	Database           *mongo.Database
-	ProjectsCollection *mongo.Collection
+	Database             *mongo.Database
+	ProjectsCollection   *mongo.Collection
+	ContainersCollection *mongo.Collection
 }
 
 func InitMongoService() MongoImageService {
@@ -25,12 +25,12 @@ func InitMongoService() MongoImageService {
 	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://89.223.26.208:27017").SetAuth(cred))
 	database := client.Database("jameson")
 	project := database.Collection("projects")
-	return MongoImageService{Database: database, ProjectsCollection: project}
+	containers := database.Collection("containers")
+	return MongoImageService{Database: database, ProjectsCollection: project, ContainersCollection: containers}
 }
 
-func (ms MongoImageService) CreateProject(name string) interface{} {
-	project := Project{Name: name}
-	project.ID = primitive.NewObjectID()
+func (ms MongoImageService) CreateProject(project Project) interface{} {
+	project.ID = GetNewId()
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	result, err := ms.ProjectsCollection.InsertOne(ctx, project)
 	if err != nil {
@@ -47,26 +47,42 @@ func (ms MongoImageService) GetProjects() interface{} {
 	if cursor != nil {
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
-			var person Project
-			cursor.Decode(&person)
-			projects = append(projects, person)
+			var project Project
+			cursor.Decode(&project)
+			projects = append(projects, project)
 		}
 	}
 	return projects
 }
 
-func (ms MongoImageService) AddTestContainerToProject(id string, testContainer TestContainer) {
+func (ms MongoImageService) GetContainers() interface{} {
+	var containers []TestContainer
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
-	testContainer.ID = primitive.NewObjectID()
-	objID, errr := primitive.ObjectIDFromHex(id)
-	if errr != nil {
-		panic(errr)
+	cursor, _ := ms.ContainersCollection.Find(ctx, bson.M{})
+
+	if cursor != nil {
+		defer cursor.Close(ctx)
+		for cursor.Next(ctx) {
+			var container TestContainer
+			cursor.Decode(&container)
+			containers = append(containers, container)
+		}
 	}
-	_, err := ms.ProjectsCollection.UpdateOne(
-		ctx,
-		bson.M{"id": objID},
-		bson.M{"$push": bson.M{"containers": testContainer}},
-	)
+	return containers
+}
+
+func (ms MongoImageService) GetTestContainer() interface{} {
+	var test TestContainer
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	ms.ProjectsCollection.FindOne(ctx, bson.M{"containers.name": "some_test"}).Decode(test)
+
+	return test
+}
+
+func (ms MongoImageService) WritingTestContainer(testContainer TestContainer) {
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	testContainer.ID = GetNewId()
+	_, err := ms.ContainersCollection.InsertOne(ctx, testContainer)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -83,7 +99,7 @@ func (ms MongoImageService) UploadImage(data []byte, filename string) {
 		os.Exit(1)
 	}
 	uploadStream, err := bucket.OpenUploadStream(
-		filename,
+		filename + ".png",
 	)
 	if err != nil {
 		fmt.Println(err)

@@ -1,22 +1,19 @@
 package pkg
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type Project struct {
-	ID             primitive.ObjectID `json:"id" bson:"id"`
-	Name           string             `json:"name" bson:"name"`
-	TestContainers []TestContainer    `json:"containers" bson:"containers"`
+	ID   string `json:"id" bson:"id"`
+	Name string `json:"name" bson:"name"`
 }
 
 type TestContainer struct {
-	ID          primitive.ObjectID `json:"id" bson:"id"`
-	Name        string             `json:"name" bson:"name"`
-	ReferenceId string             `json:"reference_id" bson:"reference_id"`
-	Approved    bool               `json:"approved" bson:"approved"`
-	Tests       []Test             `json:"tests" bson:"tests"`
+	ID          string `json:"id" bson:"id"`
+	Name        string `json:"name" bson:"name"`
+	ProjectId   string `json:"project_id" bson:"project_id"`
+	ReferenceId string `json:"reference_id" bson:"reference_id"`
+	Approved    bool   `json:"approved" bson:"approved"`
+	Tests       []Test `json:"tests" bson:"tests"`
 }
 type TestContainerDTO struct {
-	ProjectId   string `json:"project_id" bson:"project_id"`
 	Name        string `json:"name" bson:"name"`
 	ReferenceId string `json:"reference_id" bson:"reference_id"`
 	Approved    bool   `json:"approved" bson:"approved"`

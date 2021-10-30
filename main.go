@@ -10,7 +10,9 @@ const mainDirectory = "./images"
 
 func main() {
 	mongoService := pkg.InitMongoService()
+	kek := pkg.GetNewId()
 
+	print(kek)
 	//mongoService.CreateProject("huntbox")
 
 	wrapper := pkg.ImageWrapper{}
@@ -31,11 +33,13 @@ func main() {
 
 	api := router.Group("/api/v1")
 	{
-		api.GET("/path/:path", imgHandler.GetOriginImage)
 		api.GET("/result", imgHandler.GetResult)
+		api.GET("/image/:image", imgHandler.GetImage)
 		api.GET("/projects", imgHandler.GetProjects)
-		api.POST("/upload", imgHandler.Upload)
-		api.POST("/create/test", imgHandler.CreateTest)
+		api.GET("/containers", imgHandler.GetContainers)
+		api.GET("/projects/test", imgHandler.GetTestContainer)
+		api.POST("/create/project", imgHandler.CreateProject)
+		api.POST("/project/:project/test/init", imgHandler.CreateTest)
 	}
 
 	err := http.ListenAndServe(":3333", router)
