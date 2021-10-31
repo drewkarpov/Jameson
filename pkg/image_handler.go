@@ -55,12 +55,16 @@ func (h ImageHandler) GetContainers(c *gin.Context) {
 	c.JSON(http.StatusOK, containers)
 }
 
-func (h ImageHandler) GetTestContainer(c *gin.Context) {
-
-	projects := h.Service.GetTestContainer()
+func (h ImageHandler) GetContainerByName(c *gin.Context) {
+	testName := c.Request.URL.Query().Get("test_name")
+	container, isExists := h.Service.GetContainerByName(testName)
 	c.Header("content-type", "application/json")
-	c.JSON(http.StatusOK, projects)
+
+	if isExists {
+		c.JSON(http.StatusOK, container)
+	}
 }
+
 func (h ImageHandler) GetImage(c *gin.Context) {
 	imageId := c.Param("image")
 	buff := h.Service.DownloadImage(imageId + ".png")
@@ -72,11 +76,17 @@ func (h ImageHandler) GetImage(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("file err : %s", err.Error()))
 	}
 }
+func (h ImageHandler) ApproveReference(c *gin.Context) {
+	containerId := c.Param("container")
+	h.Service.ApproveReferenceForContainer(containerId)
+
+}
 func (h ImageHandler) CreateTest(c *gin.Context) {
 	projectId := c.Param("project")
+	testName := c.Request.URL.Query().Get("test_name")
 	filename := GetNewId()
 	testContainer := TestContainer{
-		ID: GetNewId(), ProjectId: projectId, Tests: []Test{},
+		ID: GetNewId(), ProjectId: projectId, Tests: []Test{}, Name: testName,
 	}
 	testContainer.ProjectId = projectId
 	testContainer.Tests = []Test{}

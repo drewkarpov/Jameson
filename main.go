@@ -10,20 +10,6 @@ const mainDirectory = "./images"
 
 func main() {
 	mongoService := pkg.InitMongoService()
-	kek := pkg.GetNewId()
-
-	print(kek)
-	//mongoService.CreateProject("huntbox")
-
-	wrapper := pkg.ImageWrapper{}
-	wrapper.SetReference("./images/refs4.png")
-	wrapper.SetCandidate("./images/ref2.png")
-
-	//file := "./images/ref3.png"
-	//filename := path.Base("ref1.png")
-
-	//mongoService.UploadImage(wrapper.GetReferenceBytes(),filename)
-	//mongoService.DownloadImage(filename)
 	shutdown := make(chan error, 1)
 
 	router := gin.Default()
@@ -37,7 +23,8 @@ func main() {
 		api.GET("/image/:image", imgHandler.GetImage)
 		api.GET("/projects", imgHandler.GetProjects)
 		api.GET("/containers", imgHandler.GetContainers)
-		api.GET("/projects/test", imgHandler.GetTestContainer)
+		api.GET("/container", imgHandler.GetContainerByName)
+		api.PUT("/container/:container/approve", imgHandler.ApproveReference)
 		api.POST("/create/project", imgHandler.CreateProject)
 		api.POST("/project/:project/test/init", imgHandler.CreateTest)
 	}
