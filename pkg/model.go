@@ -13,11 +13,6 @@ type TestContainer struct {
 	Approved    bool   `json:"approved" bson:"approved"`
 	Tests       []Test `json:"tests" bson:"tests"`
 }
-type TestContainerDTO struct {
-	Name        string `json:"name" bson:"name"`
-	ReferenceId string `json:"reference_id" bson:"reference_id"`
-	Approved    bool   `json:"approved" bson:"approved"`
-}
 
 type Test struct {
 	CandidateId string     `json:"candidate_id" bson:"candidate_id"`
@@ -25,6 +20,6 @@ type Test struct {
 }
 
 type TestResult struct {
-	ResultId   string  `json:"result_id" bson:"result_id"`
+	ID         string  `json:"id" bson:"id"`
 	Percentage float64 `json:"percentage" bson:"percentage"`
 }

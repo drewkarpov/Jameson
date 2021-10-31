@@ -1,12 +1,36 @@
 package pkg
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/png"
+	"log"
 )
 
-func GetImageDifference(img1, img2 image.Image) (*image.RGBA, float64) {
+func getImageFromBytes(bts []byte) (image.Image, error) {
+	img, _, err := image.Decode(bytes.NewReader(bts))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return img, err
+}
+
+func getBytesFromRGBAImage(img *image.RGBA) []byte {
+	buff := new(bytes.Buffer)
+	err := png.Encode(buff, img)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return buff.Bytes()
+}
+
+func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64) {
+	img1, _ := getImageFromBytes(imgBuff1)
+	img2, _ := getImageFromBytes(imgBuff2)
+
 	b := img1.Bounds()
 
 	resultImg := image.NewRGBA(image.Rect(
@@ -41,7 +65,7 @@ func GetImageDifference(img1, img2 image.Image) (*image.RGBA, float64) {
 
 	nPixels := (b.Max.X - b.Min.X) * (b.Max.Y - b.Min.Y)
 	percentage := float64(accumError*100) / (float64(nPixels) * 0xffff * 3)
-	return resultImg, percentage
+	return getBytesFromRGBAImage(resultImg), percentage
 }
 
 func sqDiffUInt32(x, y uint32) uint64 {

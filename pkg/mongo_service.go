@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"Jameson/config"
 	"bytes"
 	"context"
 	"fmt"
@@ -19,11 +20,11 @@ type MongoImageService struct {
 	ContainersCollection *mongo.Collection
 }
 
-func InitMongoService() MongoImageService {
+func InitMongoService(config config.Config) MongoImageService {
 	ctx, _ := context.WithTimeout(context.Background(), 40*time.Second)
-	var cred = options.Credential{Username: "mongoadmin", Password: "mongoadmin"}
-	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://89.223.26.208:27017").SetAuth(cred))
-	database := client.Database("jameson")
+	var cred = options.Credential{Username: config.Database.Username, Password: config.Database.Password}
+	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+config.Database.Host+":27017").SetAuth(cred))
+	database := client.Database(config.Database.DbName)
 	project := database.Collection("projects")
 	containers := database.Collection("containers")
 	return MongoImageService{Database: database, ProjectsCollection: project, ContainersCollection: containers}
@@ -56,46 +57,69 @@ func (ms MongoImageService) GetProjects() interface{} {
 }
 
 func (ms MongoImageService) GetContainers() interface{} {
-	return ms.GetTestContainers(bson.M{})
+	return ms.getTestContainersByFilter(bson.M{})
 }
 func (ms MongoImageService) GetContainerByName(name string) (*TestContainer, bool) {
-	var containers = ms.GetTestContainers(bson.M{"name": name})
-	if containers == nil {
-		return nil, false
-	}
-	return &containers[0], true
+	return ms.getContainerByDocument(bson.M{"name": name})
 }
 
-func (ms MongoImageService) ApproveReferenceForContainer(id string) (*TestContainer, bool) {
-	var containers = ms.GetTestContainers(bson.M{"id": id})
-	if containers == nil {
-		return nil, false
-	}
-	containers[0].Approved = true
-	ms.UpdateTestContainer(containers[0])
-	return &containers[0], true
+func (ms MongoImageService) GetContainerById(containerId string) (*TestContainer, bool) {
+	return ms.getContainerByDocument(bson.M{"id": containerId})
 }
 
-func (ms MongoImageService) WritingTestContainer(testContainer TestContainer) {
+func (ms MongoImageService) ApproveReferenceForContainer(containerId string) {
+	ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
+}
+
+func (ms MongoImageService) WritingTestResultToContainer(containerId string, test Test) {
+	ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
+}
+
+func (ms MongoImageService) CreateNewTestContainer(testContainer TestContainer) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	testContainer.ID = GetNewId()
+	testContainer.Tests = []Test{}
 	_, err := ms.ContainersCollection.InsertOne(ctx, testContainer)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 }
-func (ms MongoImageService) UpdateTestContainer(testContainer TestContainer) {
+func (ms MongoImageService) updateTestContainer(filter, changes bson.M) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
-	_, err := ms.ContainersCollection.UpdateOne(ctx, bson.M{"id": testContainer.ID}, bson.M{"$set": bson.M{"approved": true}})
+	_, err := ms.ContainersCollection.UpdateOne(ctx, filter, changes)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 }
 
-func (ms MongoImageService) UploadImage(data []byte, filename string) {
+func (ms MongoImageService) getContainerByDocument(document bson.M) (*TestContainer, bool) {
+	var containers = ms.getTestContainersByFilter(document)
+	if containers == nil {
+		return nil, false
+	}
+	return &containers[0], true
+}
 
+func (ms MongoImageService) getTestContainersByFilter(filter bson.M) []TestContainer {
+	var containers []TestContainer
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	cursor, _ := ms.ContainersCollection.Find(ctx, filter)
+
+	if cursor != nil {
+		defer cursor.Close(ctx)
+		for cursor.Next(ctx) {
+			var container TestContainer
+			cursor.Decode(&container)
+			containers = append(containers, container)
+		}
+	}
+	return containers
+}
+
+func (ms MongoImageService) UploadImage(data []byte) string {
+	filename := GetNewId()
 	bucket, err := gridfs.NewBucket(
 		ms.Database,
 	)
@@ -118,6 +142,8 @@ func (ms MongoImageService) UploadImage(data []byte, filename string) {
 		os.Exit(1)
 	}
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
+
+	return filename
 }
 func (ms MongoImageService) DownloadImage(fileName string) []byte {
 
@@ -140,20 +166,4 @@ func (ms MongoImageService) DownloadImage(fileName string) []byte {
 	}
 	fmt.Printf("File size to download: %v\n", dStream)
 	return buf.Bytes()
-}
-
-func (ms MongoImageService) GetTestContainers(filter bson.M) []TestContainer {
-	var containers []TestContainer
-	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
-	cursor, _ := ms.ContainersCollection.Find(ctx, filter)
-
-	if cursor != nil {
-		defer cursor.Close(ctx)
-		for cursor.Next(ctx) {
-			var container TestContainer
-			cursor.Decode(&container)
-			containers = append(containers, container)
-		}
-	}
-	return containers
 }

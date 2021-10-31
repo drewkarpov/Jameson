@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"image"
-	"image/png"
 	"io"
 	"log"
 	"net/http"
@@ -15,32 +13,6 @@ import (
 
 type ImageHandler struct {
 	Service MongoImageService
-}
-
-func (h ImageHandler) GetResult(c *gin.Context) {
-
-	buff := h.Service.DownloadImage("ref1.png")
-	c.Header("Content-Type", "image/png")
-	c.Header("Content-Length", strconv.Itoa(len(buff)))
-	wrapper := ImageWrapper{}
-	wrapper.SetReference("./images/ref2.png")
-
-	img, _, err := image.Decode(bytes.NewReader(buff))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	img2, perc := GetImageDifference(wrapper.Reference.Body, img)
-
-	println(perc)
-	buf := new(bytes.Buffer)
-	errr := png.Encode(buf, img2)
-
-	if errr != nil {
-		log.Fatalln(err)
-	}
-	send_s3 := buf.Bytes()
-
-	c.Writer.Write(send_s3)
 }
 
 func (h ImageHandler) GetProjects(c *gin.Context) {
@@ -53,6 +25,29 @@ func (h ImageHandler) GetContainers(c *gin.Context) {
 	containers := h.Service.GetContainers()
 	c.Header("content-type", "application/json")
 	c.JSON(http.StatusOK, containers)
+}
+
+func (h ImageHandler) PerformTest(c *gin.Context) {
+	containerId := c.Param("container")
+	container, _ := h.Service.GetContainerById(containerId)
+
+	reference := h.Service.DownloadImage(container.ReferenceId + ".png")
+	candidate, err := excludeFileBytes(c)
+	if err != nil {
+		c.String(422, "cannot exclude file from request body")
+	}
+
+	resultImage, percentage := GetImageDifference(reference, candidate)
+	candidateId := h.Service.UploadImage(candidate)
+	resultId := h.Service.UploadImage(resultImage)
+
+	testResult := TestResult{ID: resultId, Percentage: percentage}
+
+	h.Service.WritingTestResultToContainer(container.ID, Test{CandidateId: candidateId,
+		Result: TestResult{ID: resultId, Percentage: percentage}})
+
+	c.Header("content-type", "application/json")
+	c.JSON(http.StatusOK, testResult)
 }
 
 func (h ImageHandler) GetContainerByName(c *gin.Context) {
@@ -84,12 +79,10 @@ func (h ImageHandler) ApproveReference(c *gin.Context) {
 func (h ImageHandler) CreateTest(c *gin.Context) {
 	projectId := c.Param("project")
 	testName := c.Request.URL.Query().Get("test_name")
-	filename := GetNewId()
 	testContainer := TestContainer{
 		ID: GetNewId(), ProjectId: projectId, Tests: []Test{}, Name: testName,
 	}
 	testContainer.ProjectId = projectId
-	testContainer.Tests = []Test{}
 
 	file, _, err := c.Request.FormFile("file")
 	if err != nil {
@@ -100,9 +93,11 @@ func (h ImageHandler) CreateTest(c *gin.Context) {
 	if _, err := io.Copy(buf, file); err != nil {
 		log.Fatal(err)
 	}
-	h.Service.UploadImage(buf.Bytes(), filename)
+	filename := h.Service.UploadImage(buf.Bytes())
 	testContainer.ReferenceId = filename
-	h.Service.WritingTestContainer(testContainer)
+	h.Service.CreateNewTestContainer(testContainer)
+
+	c.JSON(http.StatusOK, testContainer)
 }
 
 func (h ImageHandler) CreateProject(c *gin.Context) {
@@ -114,4 +109,16 @@ func (h ImageHandler) CreateProject(c *gin.Context) {
 		return
 	}
 	h.Service.CreateProject(project)
+}
+
+func excludeFileBytes(c *gin.Context) ([]byte, error) {
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		return nil, err
+	}
+	buffer := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buffer, file); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }
