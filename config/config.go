@@ -28,7 +28,7 @@ func InitConfig(filename string) Config {
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(&dbconfig)
 	if err != nil {
-		logrus.Fatal("cannot read config file from path %s", path)
+		logrus.Fatalf("cannot read config file from path " + path)
 	}
 	var currentConfig = Config{Database: dbconfig.Database}
 

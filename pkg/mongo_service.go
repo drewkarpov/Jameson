@@ -1,3 +1,4 @@
+//nolint:govet
 package pkg
 
 import (
@@ -10,7 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"os"
 	"time"
 )
 
@@ -30,14 +30,14 @@ func InitMongoService(config config.Config) MongoImageService {
 	return MongoImageService{Database: database, ProjectsCollection: project, ContainersCollection: containers}
 }
 
-func (ms MongoImageService) CreateProject(project Project) interface{} {
+func (ms MongoImageService) CreateProject(project Project) (*Project, error) {
 	project.ID = GetNewId()
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
-	result, err := ms.ProjectsCollection.InsertOne(ctx, project)
+	_, err := ms.ProjectsCollection.InsertOne(ctx, project)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return result.InsertedID
+	return &project, nil
 }
 
 func (ms MongoImageService) GetProjects() interface{} {
@@ -49,7 +49,10 @@ func (ms MongoImageService) GetProjects() interface{} {
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
 			var project Project
-			cursor.Decode(&project)
+			err := cursor.Decode(&project)
+			if err != nil {
+				continue
+			}
 			projects = append(projects, project)
 		}
 	}
@@ -67,31 +70,39 @@ func (ms MongoImageService) GetContainerById(containerId string) (*TestContainer
 	return ms.getContainerByDocument(bson.M{"id": containerId})
 }
 
-func (ms MongoImageService) ApproveReferenceForContainer(containerId string) {
-	ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
+func (ms MongoImageService) ApproveReferenceForContainer(containerId string) (bool, error) {
+	_, isExists := ms.GetContainerById(containerId)
+	if !isExists {
+		return false, nil
+	}
+	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
 }
 
-func (ms MongoImageService) WritingTestResultToContainer(containerId string, test Test) {
-	ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
+func (ms MongoImageService) WritingTestResultToContainer(containerId string, test Test) (bool, error) {
+	_, isExists := ms.GetContainerById(containerId)
+	if !isExists {
+		return false, nil
+	}
+	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
 }
 
-func (ms MongoImageService) CreateNewTestContainer(testContainer TestContainer) {
+func (ms MongoImageService) CreateNewTestContainer(testContainer TestContainer) (*TestContainer, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	testContainer.ID = GetNewId()
 	testContainer.Tests = []Test{}
 	_, err := ms.ContainersCollection.InsertOne(ctx, testContainer)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return nil, err
 	}
+	return &testContainer, nil
 }
-func (ms MongoImageService) updateTestContainer(filter, changes bson.M) {
+func (ms MongoImageService) updateTestContainer(filter, changes bson.M) (bool, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	_, err := ms.ContainersCollection.UpdateOne(ctx, filter, changes)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return false, err
 	}
+	return true, nil
 }
 
 func (ms MongoImageService) getContainerByDocument(document bson.M) (*TestContainer, bool) {
@@ -111,59 +122,59 @@ func (ms MongoImageService) getTestContainersByFilter(filter bson.M) []TestConta
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
 			var container TestContainer
-			cursor.Decode(&container)
+			err := cursor.Decode(&container)
+			if err != nil {
+				continue
+			}
 			containers = append(containers, container)
 		}
 	}
 	return containers
 }
 
-func (ms MongoImageService) UploadImage(data []byte) string {
+func (ms MongoImageService) UploadImage(data []byte) (*string, error) {
 	filename := GetNewId()
 	bucket, err := gridfs.NewBucket(
 		ms.Database,
 	)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return nil, err
 	}
 	uploadStream, err := bucket.OpenUploadStream(
 		filename + ".png",
 	)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
 	defer uploadStream.Close()
 
 	fileSize, err := uploadStream.Write(data)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return nil, err
 	}
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
 
-	return filename
+	return &filename, nil
 }
-func (ms MongoImageService) DownloadImage(fileName string) []byte {
-
+func (ms MongoImageService) DownloadImage(fileName string) ([]byte, error) {
 	db := ms.Database
 	fsFiles := db.Collection("fs.files")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
 	var results bson.M
 	err := fsFiles.FindOne(ctx, bson.M{}).Decode(&results)
+
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Println(results)
-	bucket, _ := gridfs.NewBucket(
-		db,
-	)
+	bucket, _ := gridfs.NewBucket(db)
+
 	var buf bytes.Buffer
 	dStream, err := bucket.DownloadToStreamByName(fileName, &buf)
+
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	fmt.Printf("File size to download: %v\n", dStream)
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
