@@ -23,3 +23,7 @@ type TestResult struct {
 	ID         string  `json:"id" bson:"id"`
 	Percentage float64 `json:"percentage" bson:"percentage"`
 }
+
+type Reference struct {
+	ID string `json:"reference_id"`
+}

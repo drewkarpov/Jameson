@@ -80,6 +80,14 @@ func (ms MongoImageService) ApproveReferenceForContainer(containerId string) (bo
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
 }
 
+func (ms MongoImageService) SetNewReferenceForContainer(containerId, referenceId string) (bool, error) {
+	_, isExists := ms.GetContainerById(containerId)
+	if !isExists {
+		return false, nil
+	}
+	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"reference_id": referenceId}})
+}
+
 func (ms MongoImageService) WritingTestResultToContainer(containerId string, test mdl.Test) (bool, error) {
 	_, isExists := ms.GetContainerById(containerId)
 	if !isExists {
@@ -97,6 +105,20 @@ func (ms MongoImageService) CreateNewTestContainer(testContainer mdl.TestContain
 		return nil, err
 	}
 	return &testContainer, nil
+}
+
+func (ms MongoImageService) DeleteContainerById(containerId string) (bool, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	result, err := ms.ContainersCollection.DeleteOne(ctx, bson.M{"id": containerId})
+	if err != nil {
+		return false, err
+	}
+	switch result.DeletedCount {
+	case 1:
+		return true, err
+	default:
+		return false, err
+	}
 }
 func (ms MongoImageService) updateTestContainer(filter, changes bson.M) (bool, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)

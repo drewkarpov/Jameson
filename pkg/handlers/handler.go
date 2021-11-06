@@ -26,10 +26,20 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		api.GET("/containers", h.GetContainers)
 		api.GET("/image/:image", h.GetImage)
 
-		api.POST("/project/create", h.CreateProject)
-		api.POST("/project/:project/test/create", h.CreateNewTestContainer)
-		api.POST("/container/:container/perform/test", h.PerformTest)
-		api.PUT("/container/:container/approve", h.ApproveReference)
+		container := api.Group("/container")
+		{
+			container.POST("/:container/perform/test", h.PerformTest)
+			container.PATCH("/:container/approve", h.ApproveReference)
+			container.PATCH("/:container/change/reference", h.SetNewReference)
+			container.DELETE("/:container/delete", h.DeleteContainer)
+		}
+
+		project := api.Group("/project")
+		{
+			project.POST("/create", h.CreateProject)
+			project.POST("/:project/test/create", h.CreateNewTestContainer)
+
+		}
 	}
 	return router
 }

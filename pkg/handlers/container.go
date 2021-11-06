@@ -4,6 +4,7 @@ import (
 	mdl "Jameson/pkg/model"
 	"Jameson/pkg/utils"
 	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -63,7 +64,7 @@ func (h *Handler) CreateNewTestContainer(c *gin.Context) {
 // @Success 200 {object} mdl.successResponse
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
-// @Router /container/{container}/approve [put]
+// @Router /container/{container}/approve [patch]
 func (h *Handler) ApproveReference(c *gin.Context) {
 	containerId := c.Param("container")
 	update, err := h.Service.ApproveReferenceForContainer(containerId)
@@ -72,6 +73,35 @@ func (h *Handler) ApproveReference(c *gin.Context) {
 		return
 	}
 	mdl.NewSuccessResponse(c, "reference for container "+containerId+" is approved")
+}
+
+// @Summary set new reference for container
+// @Description string container_id
+// @ID set new_reference_container
+// @Accept  json
+// @Produce  json
+// @Param container path string true "container_id"
+// @Param mock body mdl.Reference true "body"
+// @Success 200 {object} mdl.successResponse
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Router /container/{container}/change/reference [patch]
+func (h *Handler) SetNewReference(c *gin.Context) {
+	containerId := c.Param("container")
+	var ref mdl.Reference
+	err := json.NewDecoder(c.Request.Body).Decode(&ref)
+
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "invalid request body", err)
+		return
+	}
+
+	update, err := h.Service.SetNewReferenceForContainer(containerId, ref.ID)
+	if err != nil || !update {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot set new reference reference for container id "+containerId, err)
+		return
+	}
+	mdl.NewSuccessResponse(c, "reference for container "+containerId+" is changed")
 }
 
 // @Summary perform test
@@ -107,22 +137,22 @@ func (h *Handler) PerformTest(c *gin.Context) {
 	}
 
 	resultImage, percentage := utils.GetImageDifference(reference, candidate)
-	candidateId, err1 := h.Service.UploadImage(candidate)
-	if err1 != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  candidate image to db", err1)
+	candidateId, err := h.Service.UploadImage(candidate)
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  candidate image to db", err)
 		return
 	}
-	resultId, err2 := h.Service.UploadImage(resultImage)
-	if err2 != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  result image to db", err2)
+	resultId, err := h.Service.UploadImage(resultImage)
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  result image to db", err)
 		return
 	}
 	testResult := mdl.TestResult{ID: *resultId, Percentage: percentage}
 
-	_, err3 := h.Service.WritingTestResultToContainer(container.ID, mdl.Test{CandidateId: *candidateId,
+	_, err1 := h.Service.WritingTestResultToContainer(container.ID, mdl.Test{CandidateId: *candidateId,
 		Result: mdl.TestResult{ID: *resultId, Percentage: percentage}})
-	if err3 != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload image to db", err3)
+	if err1 != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload image to db", err1)
 		return
 	}
 
@@ -134,6 +164,7 @@ func (h *Handler) PerformTest(c *gin.Context) {
 // @ID get_projects
 // @Accept  json
 // @Produce  json
+// @Param container path string true "container_id"
 // @Success 200 {object} []mdl.TestContainer
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
@@ -142,6 +173,26 @@ func (h *Handler) GetContainers(c *gin.Context) {
 	containers := h.Service.GetContainers()
 	c.Header("content-type", "application/json")
 	c.JSON(http.StatusOK, containers)
+}
+
+// @Summary all projects
+// @ID delete_container
+// @Accept  json
+// @Produce  json
+// @Param container path string true "container_id"
+// @Success 200 {object} mdl.successResponse
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Router /container/{container}/delete [delete]
+func (h *Handler) DeleteContainer(c *gin.Context) {
+	containerId := c.Param("container")
+	isSuccess, err := h.Service.DeleteContainerById(containerId)
+
+	if err != nil || !isSuccess {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot delete container from db", err)
+		return
+	}
+	mdl.NewSuccessResponse(c, "container with id "+containerId+" is deleted")
 }
 
 func excludeFileBytes(c *gin.Context) ([]byte, error) {
