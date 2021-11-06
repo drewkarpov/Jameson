@@ -17,20 +17,20 @@ type Config struct {
 }
 
 func InitConfig(filename string) Config {
-	var path = "./" + filename + ".yaml"
+	var path = "./config/" + filename + ".yaml"
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer f.Close()
 
-	var dbconfig Config
+	var dbConfig Config
 	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(&dbconfig)
+	err = decoder.Decode(&dbConfig)
 	if err != nil {
 		logrus.Fatalf("cannot read config file from path " + path)
 	}
-	var currentConfig = Config{Database: dbconfig.Database}
+	var currentConfig = Config{Database: dbConfig.Database}
 
 	return currentConfig
 }

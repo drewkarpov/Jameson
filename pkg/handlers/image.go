@@ -1,14 +1,11 @@
-package pkg
+package handlers
 
 import (
+	mdl "Jameson/pkg/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
-
-type ImageHandler struct {
-	Service MongoImageService
-}
 
 // @Summary image
 // @Description get image by id
@@ -22,11 +19,11 @@ type ImageHandler struct {
 // @Failure 500 {object} string
 // @Failure default {object} string
 // @Router /image/{image} [get]
-func (h ImageHandler) GetImage(c *gin.Context) {
+func (h *Handler) GetImage(c *gin.Context) {
 	imageId := c.Param("image")
 	buff, err := h.Service.DownloadImage(imageId + ".png")
 	if err != nil {
-		NewErrorResponse(c, http.StatusBadRequest, "cannot download image from db", err)
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot download image from db", err)
 		return
 	}
 
@@ -35,6 +32,6 @@ func (h ImageHandler) GetImage(c *gin.Context) {
 
 	_, err = c.Writer.Write(buff)
 	if err != nil {
-		NewErrorResponse(c, http.StatusBadRequest, "cannot writing image bytes to response", err)
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot writing image bytes to response", err)
 	}
 }

@@ -1,8 +1,10 @@
 //nolint:govet
-package pkg
+package service
 
 import (
 	"Jameson/config"
+	mdl "Jameson/pkg/model"
+	"Jameson/pkg/utils"
 	"bytes"
 	"context"
 	"fmt"
@@ -30,8 +32,8 @@ func InitMongoService(config config.Config) MongoImageService {
 	return MongoImageService{Database: database, ProjectsCollection: project, ContainersCollection: containers}
 }
 
-func (ms MongoImageService) CreateProject(project Project) (*Project, error) {
-	project.ID = GetNewId()
+func (ms MongoImageService) CreateProject(project mdl.Project) (*mdl.Project, error) {
+	project.ID = utils.GetNewId()
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	_, err := ms.ProjectsCollection.InsertOne(ctx, project)
 	if err != nil {
@@ -40,15 +42,15 @@ func (ms MongoImageService) CreateProject(project Project) (*Project, error) {
 	return &project, nil
 }
 
-func (ms MongoImageService) GetProjects() interface{} {
-	var projects []Project
+func (ms MongoImageService) GetProjects() []mdl.Project {
+	var projects []mdl.Project
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	cursor, _ := ms.ProjectsCollection.Find(ctx, bson.M{})
 
 	if cursor != nil {
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
-			var project Project
+			var project mdl.Project
 			err := cursor.Decode(&project)
 			if err != nil {
 				continue
@@ -59,14 +61,14 @@ func (ms MongoImageService) GetProjects() interface{} {
 	return projects
 }
 
-func (ms MongoImageService) GetContainers() interface{} {
+func (ms MongoImageService) GetContainers() []mdl.TestContainer {
 	return ms.getTestContainersByFilter(bson.M{})
 }
-func (ms MongoImageService) GetContainerByName(name string) (*TestContainer, bool) {
+func (ms MongoImageService) GetContainerByName(name string) (*mdl.TestContainer, bool) {
 	return ms.getContainerByDocument(bson.M{"name": name})
 }
 
-func (ms MongoImageService) GetContainerById(containerId string) (*TestContainer, bool) {
+func (ms MongoImageService) GetContainerById(containerId string) (*mdl.TestContainer, bool) {
 	return ms.getContainerByDocument(bson.M{"id": containerId})
 }
 
@@ -78,7 +80,7 @@ func (ms MongoImageService) ApproveReferenceForContainer(containerId string) (bo
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
 }
 
-func (ms MongoImageService) WritingTestResultToContainer(containerId string, test Test) (bool, error) {
+func (ms MongoImageService) WritingTestResultToContainer(containerId string, test mdl.Test) (bool, error) {
 	_, isExists := ms.GetContainerById(containerId)
 	if !isExists {
 		return false, nil
@@ -86,10 +88,10 @@ func (ms MongoImageService) WritingTestResultToContainer(containerId string, tes
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
 }
 
-func (ms MongoImageService) CreateNewTestContainer(testContainer TestContainer) (*TestContainer, error) {
+func (ms MongoImageService) CreateNewTestContainer(testContainer mdl.TestContainer) (*mdl.TestContainer, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
-	testContainer.ID = GetNewId()
-	testContainer.Tests = []Test{}
+	testContainer.ID = utils.GetNewId()
+	testContainer.Tests = []mdl.Test{}
 	_, err := ms.ContainersCollection.InsertOne(ctx, testContainer)
 	if err != nil {
 		return nil, err
@@ -105,7 +107,7 @@ func (ms MongoImageService) updateTestContainer(filter, changes bson.M) (bool, e
 	return true, nil
 }
 
-func (ms MongoImageService) getContainerByDocument(document bson.M) (*TestContainer, bool) {
+func (ms MongoImageService) getContainerByDocument(document bson.M) (*mdl.TestContainer, bool) {
 	var containers = ms.getTestContainersByFilter(document)
 	if containers == nil {
 		return nil, false
@@ -113,15 +115,15 @@ func (ms MongoImageService) getContainerByDocument(document bson.M) (*TestContai
 	return &containers[0], true
 }
 
-func (ms MongoImageService) getTestContainersByFilter(filter bson.M) []TestContainer {
-	var containers []TestContainer
+func (ms MongoImageService) getTestContainersByFilter(filter bson.M) []mdl.TestContainer {
+	var containers []mdl.TestContainer
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	cursor, _ := ms.ContainersCollection.Find(ctx, filter)
 
 	if cursor != nil {
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
-			var container TestContainer
+			var container mdl.TestContainer
 			err := cursor.Decode(&container)
 			if err != nil {
 				continue
@@ -133,7 +135,7 @@ func (ms MongoImageService) getTestContainersByFilter(filter bson.M) []TestConta
 }
 
 func (ms MongoImageService) UploadImage(data []byte) (*string, error) {
-	filename := GetNewId()
+	filename := utils.GetNewId()
 	bucket, err := gridfs.NewBucket(
 		ms.Database,
 	)
