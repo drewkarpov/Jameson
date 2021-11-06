@@ -15,7 +15,7 @@ import (
 // @Accept  multipart/form-data
 // @Param image path string true "image"
 // @Success 200
-// @Failure 422,404 {object} errorResponse
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Failure default {object} string
 // @Router /image/{image} [get]

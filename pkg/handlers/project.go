@@ -11,8 +11,8 @@ import (
 // @ID get_containers
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} []Project
-// @Failure 422,404 {object} errorResponse
+// @Success 200 {object} []mdl.Project
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Router /containers [get]
 func (h *Handler) GetProjects(c *gin.Context) {

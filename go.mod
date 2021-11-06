@@ -3,7 +3,7 @@ module Jameson
 go 1.16
 
 require (
-	github.com/gin-gonic/gin v1.7.4 // indirect
+	github.com/gin-gonic/gin v1.7.4
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
@@ -16,16 +16,16 @@ require (
 	github.com/murooka/go-diff-image v0.0.0-20171228143924-8c413ad9b24c // indirect
 	github.com/ozankasikci/go-image-merge v0.2.2 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/swaggo/gin-swagger v1.3.3 // indirect
-	github.com/swaggo/swag v1.7.4 // indirect
+	github.com/sirupsen/logrus v1.8.1
+	github.com/swaggo/gin-swagger v1.3.3
+	github.com/swaggo/swag v1.7.4
 	github.com/ugorji/go v1.2.6 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.mongodb.org/mongo-driver v1.7.3 // indirect
+	go.mongodb.org/mongo-driver v1.7.4
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
+	golang.org/x/net v0.0.0-20211105192438-b53810dc28af // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
+	golang.org/x/sys v0.0.0-20211105183446-c75c47738b0c // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
@@ -33,5 +33,5 @@ require (
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )

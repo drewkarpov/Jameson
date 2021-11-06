@@ -17,8 +17,8 @@ import (
 // @Param project path string true "project_id"
 // @Param test_name query string true "test_name"
 // @Param   file formData file true  "this is a test file"
-// @Success 200 {object} TestContainer
-// @Failure 422,404 {object} errorResponse
+// @Success 200 {object} mdl.TestContainer
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Router /project/{project}/test/create [post]
 func (h *Handler) CreateNewTestContainer(c *gin.Context) {
@@ -60,8 +60,8 @@ func (h *Handler) CreateNewTestContainer(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param container path string true "container_id"
-// @Success 200 {object} successResponse
-// @Failure 422,404 {object} errorResponse
+// @Success 200 {object} mdl.successResponse
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Router /container/{container}/approve [put]
 func (h *Handler) ApproveReference(c *gin.Context) {
@@ -81,8 +81,8 @@ func (h *Handler) ApproveReference(c *gin.Context) {
 // @Accept  multipart/form-data
 // @Param container path string true "container_id"
 // @Param   file formData file true  "this is a test file"
-// @Success 200 {object} TestResult
-// @Failure 422,404 {object} errorResponse
+// @Success 200 {object} mdl.TestResult
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Router /container/{container}/perform/test [post]
 func (h *Handler) PerformTest(c *gin.Context) {
@@ -134,8 +134,8 @@ func (h *Handler) PerformTest(c *gin.Context) {
 // @ID get_projects
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} []TestContainer
-// @Failure 422,404 {object} errorResponse
+// @Success 200 {object} []mdl.TestContainer
+// @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
 // @Router /projects [get]
 func (h *Handler) GetContainers(c *gin.Context) {
