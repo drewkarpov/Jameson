@@ -7,6 +7,7 @@ import (
 	"Jameson/pkg/utils"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,6 +35,9 @@ func InitMongoService(config config.Config) MongoImageService {
 
 func (ms MongoImageService) CreateProject(project mdl.Project) (*mdl.Project, error) {
 	project.ID = utils.GetNewId()
+	if &project.Name == nil {
+		return nil, errors.New("field name is required")
+	}
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	_, err := ms.ProjectsCollection.InsertOne(ctx, project)
 	if err != nil {

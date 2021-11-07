@@ -2,6 +2,8 @@ package service
 
 import mdl "Jameson/pkg/model"
 
+//go:generate mockgen -source=image_service.go -destination=mocks/mock.go
+
 type ImageService interface {
 	CreateProject(project mdl.Project) (*mdl.Project, error)
 	GetProjects() []mdl.Project

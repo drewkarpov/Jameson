@@ -7,6 +7,7 @@ require (
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -17,6 +18,8 @@ require (
 	github.com/ozankasikci/go-image-merge v0.2.2 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
+	github.com/stretchr/objx v0.3.0 // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/swaggo/gin-swagger v1.3.3
 	github.com/swaggo/swag v1.7.4
 	github.com/ugorji/go v1.2.6 // indirect
