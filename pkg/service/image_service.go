@@ -5,8 +5,8 @@ import mdl "Jameson/pkg/model"
 //go:generate mockgen -source=image_service.go -destination=mocks/mock.go
 
 type ImageService interface {
-	CreateProject(project mdl.Project) (*mdl.Project, error)
-	GetProjects() []mdl.Project
+	CreateProject(project *mdl.Project) (*mdl.Project, error)
+	GetProjects() ([]mdl.Project, error)
 	GetContainers() []mdl.TestContainer
 	GetContainerByName(name string) (*mdl.TestContainer, bool)
 	GetContainerById(containerId string) (*mdl.TestContainer, bool)

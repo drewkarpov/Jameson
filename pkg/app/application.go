@@ -16,8 +16,8 @@ type Application struct {
 func InitApplication() *Application {
 	mongoConfig := cfg.InitConfig("mongo_db")
 	mongoService := srv.InitMongoService(mongoConfig)
-	imageHandler := handler.NewHandler(mongoService)
+	imageHandler := handler.NewHandler(&mongoService)
 	return &Application{Config: mongoConfig,
-		Service: mongoService,
+		Service: &mongoService,
 		Handler: imageHandler}
 }

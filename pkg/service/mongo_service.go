@@ -7,7 +7,6 @@ import (
 	"Jameson/pkg/utils"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,36 +32,34 @@ func InitMongoService(config config.Config) MongoImageService {
 	return MongoImageService{Database: database, ProjectsCollection: project, ContainersCollection: containers}
 }
 
-func (ms MongoImageService) CreateProject(project mdl.Project) (*mdl.Project, error) {
+func (ms MongoImageService) CreateProject(project *mdl.Project) (*mdl.Project, error) {
 	project.ID = utils.GetNewId()
-	if &project.Name == nil {
-		return nil, errors.New("field name is required")
-	}
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	_, err := ms.ProjectsCollection.InsertOne(ctx, project)
 	if err != nil {
 		return nil, err
 	}
-	return &project, nil
+	return project, nil
 }
 
-func (ms MongoImageService) GetProjects() []mdl.Project {
+func (ms MongoImageService) GetProjects() ([]mdl.Project, error) {
 	var projects []mdl.Project
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	cursor, _ := ms.ProjectsCollection.Find(ctx, bson.M{})
 
+	var err error
 	if cursor != nil {
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
 			var project mdl.Project
-			err := cursor.Decode(&project)
+			err = cursor.Decode(&project)
 			if err != nil {
-				continue
+				return nil, err
 			}
 			projects = append(projects, project)
 		}
 	}
-	return projects
+	return projects, err
 }
 
 func (ms MongoImageService) GetContainers() []mdl.TestContainer {
