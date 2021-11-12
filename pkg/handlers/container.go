@@ -136,7 +136,11 @@ func (h *Handler) PerformTest(c *gin.Context) {
 		return
 	}
 
-	resultImage, percentage := utils.GetImageDifference(reference, candidate)
+	resultImage, percentage, err := utils.GetImageDifference(reference, candidate)
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "images have difference by bound", err)
+		return
+	}
 	candidateId, err := h.Service.UploadImage(candidate)
 	if err != nil {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  candidate image to db", err)
@@ -160,15 +164,14 @@ func (h *Handler) PerformTest(c *gin.Context) {
 	c.JSON(http.StatusOK, testResult)
 }
 
-// @Summary all projects
-// @ID get_projects
+// @Summary all containers
+// @ID get_containers
 // @Accept  json
 // @Produce  json
-// @Param container path string true "container_id"
 // @Success 200 {object} []mdl.TestContainer
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
-// @Router /projects [get]
+// @Router /containers [get]
 func (h *Handler) GetContainers(c *gin.Context) {
 	containers := h.Service.GetContainers()
 	c.Header("content-type", "application/json")

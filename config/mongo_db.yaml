@@ -1,5 +1,5 @@
 database:
   user: "mongoadmin"
   pass: "mongoadmin"
-  host: "89.223.26.208"
+  host: "212.193.52.21"
   db_name: "jameson"

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"errors"
 	"image"
 	"image/color"
 	"image/draw"
@@ -27,11 +28,19 @@ func getBytesFromRGBAImage(img *image.RGBA) []byte {
 	return buff.Bytes()
 }
 
-func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64) {
+func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64, error) {
 	img1, _ := getImageFromBytes(imgBuff1)
 	img2, _ := getImageFromBytes(imgBuff2)
 
+	if img1 == img2 {
+		println()
+	}
+
 	b := img1.Bounds()
+
+	if img1.Bounds() != img2.Bounds() {
+		return nil, 0, errors.New("img1 bounds is not equal img 2 bounds")
+	}
 
 	resultImg := image.NewRGBA(image.Rect(
 		b.Min.X,
@@ -48,10 +57,10 @@ func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64) {
 			r1, g1, b1, a1 := img1.At(x, y).RGBA()
 			r2, g2, b2, a2 := img2.At(x, y).RGBA()
 
-			diff := int64(sqDiffUInt32(r1, r2))
-			diff += int64(sqDiffUInt32(g1, g2))
-			diff += int64(sqDiffUInt32(b1, b2))
-			diff += int64(sqDiffUInt32(a1, a2))
+			diff := int64(SqDiffUInt32(r1, r2))
+			diff += int64(SqDiffUInt32(g1, g2))
+			diff += int64(SqDiffUInt32(b1, b2))
+			diff += int64(SqDiffUInt32(a1, a2))
 
 			if diff > 0 {
 				accumError += diff
@@ -65,10 +74,10 @@ func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64) {
 
 	nPixels := (b.Max.X - b.Min.X) * (b.Max.Y - b.Min.Y)
 	percentage := float64(accumError*100) / (float64(nPixels) * 0xffff * 3)
-	return getBytesFromRGBAImage(resultImg), percentage
+	return getBytesFromRGBAImage(resultImg), percentage, nil
 }
 
-func sqDiffUInt32(x, y uint32) uint64 {
+func SqDiffUInt32(x, y uint32) uint64 {
 	d := uint64(x) - uint64(y)
 	return d * d
 }
