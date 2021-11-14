@@ -14,21 +14,19 @@ import (
 )
 
 func TestHandler_GetImage(t *testing.T) {
-	type mockBehavior func(s mockservice.MockImageService, path string)
+	type mockBehavior func(s mockservice.MockImageService)
 
 	tests := []struct {
 		name               string
-		imagePath          string
 		mockBehavior       mockBehavior
 		expectedStatusCode int
 		expectedBuffLength int
 	}{
 		{
 			name:               "images difference by bounds",
-			imagePath:          "./ref1.png",
 			expectedStatusCode: 200,
 			expectedBuffLength: 11550,
-			mockBehavior: func(s mockservice.MockImageService, path string) {
+			mockBehavior: func(s mockservice.MockImageService) {
 				imageBuff, _ := getBytesFromImage("./ref1.png")
 				s.EXPECT().DownloadImage("some_path.png").Return(imageBuff, nil)
 			},
@@ -41,7 +39,7 @@ func TestHandler_GetImage(t *testing.T) {
 			defer c.Finish()
 
 			service := mockservice.NewMockImageService(c)
-			test.mockBehavior(*service, test.imagePath)
+			test.mockBehavior(*service)
 
 			handler := Handler{service}
 

@@ -12,8 +12,8 @@ type Handler struct {
 	Service service.ImageService
 }
 
-func NewHandler(services service.ImageService) *Handler {
-	return &Handler{Service: services}
+func NewHandler(service service.ImageService) *Handler {
+	return &Handler{Service: service}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {

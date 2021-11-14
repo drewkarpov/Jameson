@@ -138,25 +138,20 @@ func TestHandler_GetProjects(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// Init Dependencies
 			c := gomock.NewController(t)
 			defer c.Finish()
 
 			service := mockservice.NewMockImageService(c)
 			handler := Handler{service}
 			test.mockBehavior(*service)
-			// Init Endpoint
 			r := gin.New()
 			r.GET("/api/v1/projects", handler.GetProjects)
 
-			// Create Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/api/v1/projects", nil)
 
-			// Make Request
 			r.ServeHTTP(w, req)
 
-			// Assert
 			expect := test.expectedResponseBody
 			actual := w.Body.String()
 
