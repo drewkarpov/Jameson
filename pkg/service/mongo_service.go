@@ -81,20 +81,37 @@ func (ms MongoImageService) ApproveReferenceForContainer(containerId string) (bo
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"approved": true}})
 }
 
-func (ms MongoImageService) SetNewReferenceForContainer(containerId, referenceId string) (bool, error) {
+func (ms MongoImageService) SetNewReferenceForContainer(containerId string, reference mdl.Reference) (bool, error) {
 	_, isExists := ms.GetContainerById(containerId)
 	if !isExists {
 		return false, nil
 	}
-	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"reference_id": referenceId}})
+	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"reference_id": reference.ID}})
 }
 
-func (ms MongoImageService) WritingTestResultToContainer(containerId string, test mdl.Test) (bool, error) {
+func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.TestResult, error) {
+	candidateId, err := ms.UploadImage(candidate)
+	if err != nil {
+		return nil, err
+	}
+	resultId, err := ms.UploadImage(result)
+	if err != nil {
+		return nil, err
+	}
+
 	_, isExists := ms.GetContainerById(containerId)
 	if !isExists {
-		return false, nil
+		return nil, err
 	}
-	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
+
+	test := mdl.Test{CandidateId: *candidateId,
+		Result: mdl.TestResult{ID: *resultId, Percentage: percentage}}
+
+	isSuccess, err := ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})
+	if err != nil || !isSuccess {
+		return nil, err
+	}
+	return &test.Result, nil
 }
 
 func (ms MongoImageService) CreateNewTestContainer(testContainer mdl.TestContainer) (*mdl.TestContainer, error) {

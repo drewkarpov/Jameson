@@ -1,16 +1,9 @@
-FROM golang:1.17-buster AS build
+FROM golang:alpine AS builder
 
-ENV GOPATH=/
-WORKDIR /src/
-COPY ./ /src/
+WORKDIR $GOPATH/src/mypackage/myapp/
+COPY . .
 
-# build go app
-RUN go mod download; CGO_ENABLED=0 go build -o /Jameson ./main.go
+RUN go get -d -v
+RUN go build -o Jameson ./main.go
 
-
-FROM alpine:latest
-
-COPY --from=build /Jameson /Jameson
-COPY ./configs/ /configs/
-
-CMD ["/Jameson"]
+ENTRYPOINT ["./Jameson"]

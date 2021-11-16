@@ -13,7 +13,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Accept  multipart/form-data
-// @Param image query string true "image"
+// @Param image path string true "image"
 // @Success 200
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string

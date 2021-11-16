@@ -169,18 +169,18 @@ func (mr *MockImageServiceMockRecorder) GetProjects() *gomock.Call {
 }
 
 // SetNewReferenceForContainer mocks base method.
-func (m *MockImageService) SetNewReferenceForContainer(containerId, referenceId string) (bool, error) {
+func (m *MockImageService) SetNewReferenceForContainer(containerId string, reference model.Reference) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetNewReferenceForContainer", containerId, referenceId)
+	ret := m.ctrl.Call(m, "SetNewReferenceForContainer", containerId, reference)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SetNewReferenceForContainer indicates an expected call of SetNewReferenceForContainer.
-func (mr *MockImageServiceMockRecorder) SetNewReferenceForContainer(containerId, referenceId interface{}) *gomock.Call {
+func (mr *MockImageServiceMockRecorder) SetNewReferenceForContainer(containerId, reference interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNewReferenceForContainer", reflect.TypeOf((*MockImageService)(nil).SetNewReferenceForContainer), containerId, referenceId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNewReferenceForContainer", reflect.TypeOf((*MockImageService)(nil).SetNewReferenceForContainer), containerId, reference)
 }
 
 // UploadImage mocks base method.
@@ -199,16 +199,16 @@ func (mr *MockImageServiceMockRecorder) UploadImage(data interface{}) *gomock.Ca
 }
 
 // WritingTestResultToContainer mocks base method.
-func (m *MockImageService) WritingTestResultToContainer(containerId string, test model.Test) (bool, error) {
+func (m *MockImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*model.TestResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WritingTestResultToContainer", containerId, test)
-	ret0, _ := ret[0].(bool)
+	ret := m.ctrl.Call(m, "WritingTestResultToContainer", candidate, result, percentage, containerId)
+	ret0, _ := ret[0].(*model.TestResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // WritingTestResultToContainer indicates an expected call of WritingTestResultToContainer.
-func (mr *MockImageServiceMockRecorder) WritingTestResultToContainer(containerId, test interface{}) *gomock.Call {
+func (mr *MockImageServiceMockRecorder) WritingTestResultToContainer(candidate, result, percentage, containerId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WritingTestResultToContainer", reflect.TypeOf((*MockImageService)(nil).WritingTestResultToContainer), containerId, test)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WritingTestResultToContainer", reflect.TypeOf((*MockImageService)(nil).WritingTestResultToContainer), candidate, result, percentage, containerId)
 }

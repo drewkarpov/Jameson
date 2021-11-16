@@ -96,7 +96,7 @@ func (h *Handler) SetNewReference(c *gin.Context) {
 		return
 	}
 
-	update, err := h.Service.SetNewReferenceForContainer(containerId, ref.ID)
+	update, err := h.Service.SetNewReferenceForContainer(containerId, ref)
 	if err != nil || !update {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot set new reference reference for container id "+containerId, err)
 		return
@@ -141,27 +141,15 @@ func (h *Handler) PerformTest(c *gin.Context) {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "images have difference by bound", err)
 		return
 	}
-	candidateId, err := h.Service.UploadImage(candidate)
-	if err != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  candidate image to db", err)
-		return
-	}
-	resultId, err := h.Service.UploadImage(resultImage)
-	if err != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload  result image to db", err)
-		return
-	}
-	testResult := mdl.TestResult{ID: *resultId, Percentage: percentage}
 
-	_, err1 := h.Service.WritingTestResultToContainer(container.ID, mdl.Test{CandidateId: *candidateId,
-		Result: mdl.TestResult{ID: *resultId, Percentage: percentage}})
-	if err1 != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot upload image to db", err1)
+	result, err := h.Service.WritingTestResultToContainer(candidate, resultImage, percentage, container.ID)
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot writing test to container", err)
 		return
 	}
 
 	c.Header("content-type", "application/json")
-	c.JSON(http.StatusOK, testResult)
+	c.JSON(http.StatusOK, result)
 }
 
 // @Summary all containers
