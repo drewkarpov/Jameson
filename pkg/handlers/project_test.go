@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"Jameson/pkg/model"
-	mockservice "Jameson/pkg/service/mocks"
 	"bytes"
+	"github.com/drewkarpov/Jameson/pkg/model"
+	mockservice "github.com/drewkarpov/Jameson/pkg/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "Jameson/docs"
-	"Jameson/pkg/app"
+	_ "github.com/drewkarpov/Jameson/docs"
+	"github.com/drewkarpov/Jameson/pkg/app"
 	"net/http"
 	"os"
 	"os/signal"

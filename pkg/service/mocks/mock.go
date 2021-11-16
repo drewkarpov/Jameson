@@ -5,9 +5,9 @@
 package mock_service
 
 import (
-	model "Jameson/pkg/model"
 	reflect "reflect"
 
+	model "github.com/drewkarpov/Jameson/pkg/model"
 	gomock "github.com/golang/mock/gomock"
 )
 

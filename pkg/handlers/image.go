@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	mdl "Jameson/pkg/model"
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"

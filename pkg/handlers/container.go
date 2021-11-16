@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	mdl "Jameson/pkg/model"
-	"Jameson/pkg/utils"
 	"bytes"
 	"encoding/json"
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
+	"github.com/drewkarpov/Jameson/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"

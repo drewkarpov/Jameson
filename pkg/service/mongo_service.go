@@ -2,12 +2,12 @@
 package service
 
 import (
-	"Jameson/config"
-	mdl "Jameson/pkg/model"
-	"Jameson/pkg/utils"
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/drewkarpov/Jameson/config"
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
+	"github.com/drewkarpov/Jameson/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"

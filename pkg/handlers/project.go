@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	mdl "Jameson/pkg/model"
 	"encoding/json"
 	"errors"
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

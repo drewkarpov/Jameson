@@ -1,10 +1,10 @@
 package app
 
 import (
-	"Jameson/config"
-	cfg "Jameson/config"
-	handler "Jameson/pkg/handlers"
-	srv "Jameson/pkg/service"
+	"github.com/drewkarpov/Jameson/config"
+	cfg "github.com/drewkarpov/Jameson/config"
+	handler "github.com/drewkarpov/Jameson/pkg/handlers"
+	srv "github.com/drewkarpov/Jameson/pkg/service"
 )
 
 type Application struct {

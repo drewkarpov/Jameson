@@ -1,6 +1,6 @@
 package service
 
-import mdl "Jameson/pkg/model"
+import mdl "github.com/drewkarpov/Jameson/pkg/model"
 
 //go:generate mockgen -source=image_service.go -destination=mocks/mock.go
 
