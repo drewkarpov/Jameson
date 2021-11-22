@@ -27,7 +27,7 @@ func TestHandler_GetImage(t *testing.T) {
 			expectedStatusCode: 200,
 			expectedBuffLength: 11550,
 			mockBehavior: func(s mockservice.MockImageService) {
-				imageBuff, _ := getBytesFromImage("./ref1.png")
+				imageBuff, _ := getBytesFromImage("../../test_data/ref1.png")
 				s.EXPECT().DownloadImage("some_path.png").Return(imageBuff, nil)
 			},
 		},

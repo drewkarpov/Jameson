@@ -8,10 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"mime/multipart"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
@@ -336,100 +333,4 @@ func TestHandler_DeleteContainer(t *testing.T) {
 			assert.Equal(t, actual, expect)
 		})
 	}
-}
-
-func TestHandler_PerformTest(t *testing.T) {
-	type mockBehavior func(s mockservice.MockImageService, candidate []byte, resultId *string)
-
-	tests := []struct {
-		name                 string
-		mockBehavior         mockBehavior
-		resultID             string
-		expectedStatusCode   int
-		expectedResponseBody string
-	}{
-		{
-			name:     "POSITIVE",
-			resultID: "test-1",
-			mockBehavior: func(s mockservice.MockImageService, candidate []byte, resultId *string) {
-				s.EXPECT().GetContainerById("some-id").Return(
-					&model.TestContainer{
-						ID:          "some-id",
-						ProjectId:   "project-id",
-						ReferenceId: "reference-id",
-						Approved:    true,
-						Tests:       []model.Test{},
-					}, true)
-
-				s.EXPECT().DownloadImage("reference-id.png").Return(candidate, nil)
-				s.EXPECT().UploadImage(candidate).Return(resultId, nil)
-			},
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			service := mockservice.NewMockImageService(c)
-
-			handler := Handler{service}
-
-			gin.SetMode(gin.TestMode)
-
-			r := gin.New()
-			r.POST("/container/perform/test", handler.PerformTest)
-
-			w := httptest.NewRecorder()
-
-			context, _ := gin.CreateTestContext(w)
-			context.Params = []gin.Param{
-				{
-					Key:   "container",
-					Value: "some-id",
-				},
-			}
-
-			b, wr := createMultipartFormData(t, "file", "./ref1.png")
-			req := httptest.NewRequest("POST", "/container/perform/test", &b)
-			req.Header.Set("Content-Type", wr.FormDataContentType())
-
-			context.Request = req
-
-			bt, _ := excludeFileBytes(context)
-
-			test.mockBehavior(*service, bt, &test.resultID)
-
-			handler.PerformTest(context)
-
-			expect := test.expectedResponseBody
-			actual := w.Body.String()
-
-			assert.Equal(t, w.Code, test.expectedStatusCode)
-			assert.Equal(t, actual, expect)
-		})
-	}
-}
-
-func createMultipartFormData(t *testing.T, fieldName, fileName string) (bytes.Buffer, *multipart.Writer) {
-	var b bytes.Buffer
-	var err error
-	w := multipart.NewWriter(&b)
-	var fw io.Writer
-	file := mustOpen(fileName)
-	if fw, err = w.CreateFormFile(fieldName, file.Name()); err != nil {
-		t.Errorf("Error creating writer: %v", err)
-	}
-	if _, err = io.Copy(fw, file); err != nil {
-		t.Errorf("Error with io.Copy: %v", err)
-	}
-	w.Close()
-	return b, w
-}
-
-func mustOpen(f string) *os.File {
-	r, err := os.Open(f)
-	if err != nil {
-	}
-	return r
 }

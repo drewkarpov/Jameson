@@ -43,22 +43,22 @@ func TestGetImageDifference(t *testing.T) {
 	}{
 		{
 			name:               "images have diff",
-			candidate:          "./testdata/ref1.png",
-			reference:          "./testdata/ref2.png",
+			candidate:          "../../test_data/ref1.png",
+			reference:          "../../test_data/ref2.png",
 			expectedPercentage: 11365.422755233396,
 			resultBuffLength:   11601,
 		},
 		{
 			name:               "images no have diff",
-			candidate:          "./testdata/ref1.png",
-			reference:          "./testdata/ref1.png",
+			candidate:          "../../test_data/ref1.png",
+			reference:          "../../test_data/ref1.png",
 			expectedPercentage: 0,
 			resultBuffLength:   11550,
 		},
 		{
 			name:               "images difference by bounds",
-			candidate:          "./testdata/ref1.png",
-			reference:          "./testdata/ref3.png",
+			candidate:          "../../test_data/ref1.png",
+			reference:          "../../test_data/ref3.png",
 			expectedPercentage: 0,
 			resultBuffLength:   0,
 			err:                errors.New("img1 bounds is not equal img 2 bounds"),

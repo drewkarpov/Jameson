@@ -5,6 +5,7 @@ package docs
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"strings"
 	"text/template"
 
@@ -576,7 +577,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "212.193.52.21:3333",
+	Host:        os.Getenv("HOST") + ":3333",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "Swagger Jameson API",

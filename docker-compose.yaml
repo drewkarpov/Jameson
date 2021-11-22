@@ -10,5 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      HOST: ${HOST}
     ports:
       - 3333:3333
