@@ -11,7 +11,7 @@ type Config struct {
 	Database struct {
 		Username string `yaml:"user"`
 		Password string `yaml:"pass"`
-		Host     string `yaml:"host"`
+		Host     string
 		DbName   string `yaml:"db_name"`
 	} `yaml:"database"`
 }
@@ -30,6 +30,7 @@ func InitConfig(filename string) Config {
 	if err != nil {
 		logrus.Fatalf("cannot read config file from path " + path)
 	}
+	dbConfig.Database.Host = os.Getenv("HOST")
 	var currentConfig = Config{Database: dbConfig.Database}
 
 	return currentConfig
