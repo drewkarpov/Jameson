@@ -1,0 +1,31 @@
+@import '~bootstrap/scss/bootstrap.scss';
+@import '~bootstrap-vue/src/index.scss';
+
+/* VUE.JS */
+[v-cloak] {
+    display: none;
+}
+
+.percentage-unknown {
+    color: #b3b3b3;
+}
+
+.percentage-awesome {
+    color: #cce780;
+    font-weight: bold;
+}
+
+.percentage-good {
+    color: #cce780;
+    font-weight: bold;
+}
+
+.percentage-bad {
+    color: #e3c534;
+    font-weight: bold;
+}
+
+.percentage-awful {
+    color: #c74e4e;
+    font-weight: bold;
+}
