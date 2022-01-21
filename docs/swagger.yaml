@@ -55,7 +55,7 @@ definitions:
       result:
         type: string
     type: object
-host: 212.193.52.21:3333
+host: localhost:3333
 info:
   contact:
     email: support@swagger.io
@@ -69,6 +69,31 @@ info:
   title: Swagger Jameson API
   version: "1.0"
 paths:
+  /api/v1/project/create:
+    post:
+      consumes:
+      - application/json
+      operationId: creat_project
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Project'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: create project
   /container/{container}/approve:
     patch:
       consumes:
@@ -325,31 +350,6 @@ paths:
             items:
               $ref: '#/definitions/model.Project'
             type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/model.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/model.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: get all containers
-  /projects/{project}/test/create:
-    post:
-      consumes:
-      - application/json
-      operationId: creat_project
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Project'
         "404":
           description: Not Found
           schema:

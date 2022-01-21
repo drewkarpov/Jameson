@@ -21,7 +21,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host 212.193.52.21:3333
+// @host localhost:3333
 // @BasePath /api/v1
 // @query.collection.format multi
 func main() {

@@ -26,14 +26,14 @@ func (h *Handler) GetProjects(c *gin.Context) {
 	c.JSON(http.StatusOK, projects)
 }
 
-// @Summary get all containers
+// @Summary create project
 // @ID creat_project
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} mdl.Project
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
-// @Router /projects/{project}/test/create [post]
+// @Router /api/v1/project/create [post]
 func (h *Handler) CreateProject(c *gin.Context) {
 	project := mdl.Project{}
 	err := json.NewDecoder(c.Request.Body).Decode(&project)
