@@ -1,5 +1,14 @@
 basePath: /api/v1
 definitions:
+  model.ImagesContainer:
+    properties:
+      candidate:
+        type: string
+      diff:
+        type: string
+      reference:
+        type: string
+    type: object
   model.Project:
     properties:
       id:
@@ -12,9 +21,18 @@ definitions:
       reference_id:
         type: string
     type: object
+  model.ResultContainer:
+    properties:
+      images:
+        $ref: '#/definitions/model.ImagesContainer'
+      percentage:
+        type: number
+    type: object
   model.Test:
     properties:
       candidate_id:
+        type: string
+      id:
         type: string
       result:
         $ref: '#/definitions/model.TestResult'
@@ -363,4 +381,35 @@ paths:
           schema:
             type: string
       summary: get all containers
+  /test/{test}:
+    get:
+      consumes:
+      - application/json
+      operationId: get result test data
+      parameters:
+      - description: test_id
+        in: path
+        name: test
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResultContainer'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: get test data
 swagger: "2.0"

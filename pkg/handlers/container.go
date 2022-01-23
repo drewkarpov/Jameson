@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/drewkarpov/Jameson/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -119,7 +120,7 @@ func (h *Handler) PerformTest(c *gin.Context) {
 	containerId := c.Param("container")
 	container, _ := h.Service.GetContainerById(containerId)
 
-	if !container.Approved {
+	if container == nil || !container.Approved {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "reference for this container is not approved", nil)
 		return
 	}
@@ -184,6 +185,47 @@ func (h *Handler) DeleteContainer(c *gin.Context) {
 		return
 	}
 	mdl.NewSuccessResponse(c, "container with id "+containerId+" is deleted")
+}
+
+// @Summary get result test data
+// @Description get test by id
+// @ID set image
+// @Accept  json
+// @Produce  json
+// @Param test path string true "test"
+// @Success 200 {object} mdl.ResultContainer
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Failure default {object} string
+// @Router /test/{test} [get]
+func (h *Handler) GetPreparedTestData(c *gin.Context) {
+	testId := c.Param("test")
+	container, isExists := h.Service.GetContainerByTestId(testId)
+
+	if container == nil || !isExists {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot find container", nil)
+		return
+	}
+
+	var result mdl.ResultContainer
+	for _, test := range container.Tests {
+		if test.ID == testId {
+			result = mdl.ResultContainer{
+				Percentage: test.Result.Percentage,
+				Images:     mdl.ImagesContainer{DiffId: test.Result.ID, CandidateId: test.CandidateId, ReferenceId: container.ReferenceId},
+			}
+		}
+	}
+	if &result == nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot test with id %s", testId), nil)
+		return
+	}
+	if !isExists {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot find container with test result id %s", testId), nil)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 func excludeFileBytes(c *gin.Context) ([]byte, error) {

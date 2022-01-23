@@ -17,4 +17,5 @@ type ImageService interface {
 	DeleteContainerById(containerId string) (bool, error)
 	UploadImage(data []byte) (*string, error)
 	DownloadImage(fileName string) ([]byte, error)
+	GetContainerByTestId(testId string) (*mdl.TestContainer, bool)
 }
