@@ -12,7 +12,7 @@ const routes = [
     component: MainComponent
   },
   {
-    path: '/project/:projectIdParam/test/:testIdParam', // http://my-service.com/project/my-project/test/test-id
+    path: '/test/:testIdParam', // http://my-service.com/test/test-id
     name: 'project',
     component: MainComponent,
     props: true

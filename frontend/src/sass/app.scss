@@ -6,6 +6,12 @@
     display: none;
 }
 
+.jameson-container {
+    @media (min-width: 1200px) {
+        max-width: 1600px !important; // @here
+    }
+}
+
 .percentage-unknown {
     color: #b3b3b3;
 }
