@@ -73,6 +73,10 @@ func (ms MongoImageService) GetContainerById(containerId string) (*mdl.TestConta
 	return ms.getContainerByDocument(bson.M{"id": containerId})
 }
 
+func (ms MongoImageService) GetContainerByTestId(testId string) (*mdl.TestContainer, bool) {
+	return ms.getContainerByDocument(bson.M{"tests.id": testId})
+}
+
 func (ms MongoImageService) ApproveReferenceForContainer(containerId string) (bool, error) {
 	_, isExists := ms.GetContainerById(containerId)
 	if !isExists {
@@ -104,7 +108,7 @@ func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byt
 		return nil, err
 	}
 
-	test := mdl.Test{CandidateId: *candidateId,
+	test := mdl.Test{ID: utils.GetNewId(), CandidateId: *candidateId,
 		Result: mdl.TestResult{ID: *resultId, Percentage: percentage}}
 
 	isSuccess, err := ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})

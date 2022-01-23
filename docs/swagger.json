@@ -458,9 +458,70 @@
                     }
                 }
             }
+        },
+        "/test/{test}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get test data",
+                "operationId": "get result test data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "test_id",
+                        "name": "test",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResultContainer"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.ImagesContainer": {
+            "type": "object",
+            "properties": {
+                "candidate": {
+                    "type": "string"
+                },
+                "diff": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Project": {
             "type": "object",
             "properties": {
@@ -480,10 +541,24 @@
                 }
             }
         },
+        "model.ResultContainer": {
+            "type": "object",
+            "properties": {
+                "images": {
+                    "$ref": "#/definitions/model.ImagesContainer"
+                },
+                "percentage": {
+                    "type": "number"
+                }
+            }
+        },
         "model.Test": {
             "type": "object",
             "properties": {
                 "candidate_id": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "result": {

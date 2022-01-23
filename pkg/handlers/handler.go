@@ -26,6 +26,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		api.GET("/projects", h.GetProjects)
 		api.GET("/containers", h.GetContainers)
 		api.GET("/image/:image", h.GetImage)
+		api.GET("/test/:test", h.GetPreparedTestData)
 
 		container := api.Group("/container")
 		{
@@ -39,7 +40,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			project.POST("/create", h.CreateProject)
 			project.POST("/:project/test/create", h.CreateNewTestContainer)
-
 		}
 	}
 	return router

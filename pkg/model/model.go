@@ -15,6 +15,7 @@ type TestContainer struct {
 }
 
 type Test struct {
+	ID          string     `json:"id" bson:"id"`
 	CandidateId string     `json:"candidate_id" bson:"candidate_id"`
 	Result      TestResult `json:"result" bson:"result"`
 }
@@ -22,6 +23,17 @@ type Test struct {
 type TestResult struct {
 	ID         string  `json:"id" bson:"id"`
 	Percentage float64 `json:"percentage" bson:"percentage"`
+}
+
+type ResultContainer struct {
+	Percentage float64         `json:"percentage"`
+	Images     ImagesContainer `json:"images"`
+}
+
+type ImagesContainer struct {
+	ReferenceId string `json:"reference"`
+	CandidateId string `json:"candidate"`
+	DiffId      string `json:"diff"`
 }
 
 type Reference struct {
