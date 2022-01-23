@@ -39,7 +39,7 @@
 <script>
 import axios from 'axios';
 
-const URL = '/test_data/response.json'; // @here change local URL to remote URL
+const URL = 'http://127.0.0.1:3333/api/v1'; // @here change local URL to remote URL
 
 export default {
     name: 'Main',
@@ -82,13 +82,16 @@ export default {
         },
         getData(projectId, testId) {
             axios
-                .get(URL + "?projectId=" + projectId + "&testId=" + testId) // @here you can change URL params format
+                .get(URL + "/test/" + testId) // @here you can change URL params format
                 .then(response => {
-                    this.images = response.data.images;
+                    const imagesList = response.data.images;
+                    for (let key in imagesList) {
+                        imagesList[key] = URL + '/image/' + imagesList[key];
+                    }
+
+                    this.images = imagesList;
                     this.percentage = response.data.percentage;
                 })
-                .catch(function (error) {
-                });
         }
     }
 }
