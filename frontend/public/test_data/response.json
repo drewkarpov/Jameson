@@ -1,8 +1,0 @@
-{
-  "percentage": 69,
-  "images": {
-    "reference": "/test_data/ref1.png",
-    "candidate": "/test_data/ref2.png",
-    "diff": "/test_data/result.png"
-  }
-}
