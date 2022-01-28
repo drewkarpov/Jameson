@@ -24,6 +24,7 @@ import (
 // @host localhost:3333
 // @BasePath /api/v1
 // @query.collection.format multi
+
 func main() {
 	application := app.InitApplication()
 

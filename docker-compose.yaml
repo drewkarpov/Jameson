@@ -14,3 +14,10 @@ services:
       HOST: ${HOST}
     ports:
       - 3333:3333
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:80

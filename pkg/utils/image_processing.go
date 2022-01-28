@@ -73,7 +73,7 @@ func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64, error) {
 	}
 
 	nPixels := (b.Max.X - b.Min.X) * (b.Max.Y - b.Min.Y)
-	percentage := float64(accumError*100) / (float64(nPixels) * 0xffff * 3)
+	percentage := float64(accumError/10) / (float64(nPixels) * 0xffff * 3)
 	return getBytesFromRGBAImage(resultImg), percentage, nil
 }
 

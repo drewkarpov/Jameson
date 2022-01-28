@@ -93,7 +93,7 @@ func (ms MongoImageService) SetNewReferenceForContainer(containerId string, refe
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"reference_id": reference.ID}})
 }
 
-func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.TestResult, error) {
+func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.Test, error) {
 	candidateId, err := ms.UploadImage(candidate)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byt
 	if err != nil || !isSuccess {
 		return nil, err
 	}
-	return &test.Result, nil
+	return &test, nil
 }
 
 func (ms MongoImageService) CreateNewTestContainer(testContainer mdl.TestContainer) (*mdl.TestContainer, error) {
