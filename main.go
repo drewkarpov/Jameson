@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	_ "github.com/drewkarpov/Jameson/docs"
 	"github.com/drewkarpov/Jameson/pkg/app"
 	"net/http"
@@ -25,13 +26,18 @@ import (
 // @BasePath /api/v1
 // @query.collection.format multi
 
+//go:embed frontend/public/*
+var fs embed.FS
+
 func main() {
 	application := app.InitApplication()
 
 	shutdown := make(chan error, 1)
 
+	router := application.Handler.InitRoutes(fs)
+
 	go func() {
-		err := http.ListenAndServe(":3333", application.Handler.InitRoutes())
+		err := http.ListenAndServe(":3333", router)
 		shutdown <- err
 	}()
 

@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"embed"
 	_ "github.com/drewkarpov/Jameson/docs"
 	"github.com/drewkarpov/Jameson/pkg/service"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+	"net/http"
 )
 
 type Handler struct {
@@ -16,11 +18,16 @@ func NewHandler(service service.ImageService) *Handler {
 	return &Handler{Service: service}
 }
 
-func (h *Handler) InitRoutes() *gin.Engine {
+func (h *Handler) InitRoutes(fs embed.FS) *gin.Engine {
 	router := gin.New()
 	router.Use(CORSMiddleware())
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	router.Any("/frontend/public/*filepath", func(c *gin.Context) {
+		staticServer := http.FileServer(http.FS(fs))
+		staticServer.ServeHTTP(c.Writer, c.Request)
+	})
 
 	api := router.Group("/api/v1")
 	{
