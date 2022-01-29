@@ -4,7 +4,7 @@ const replace = require('replace-in-file');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HistoryFallback = require('connect-history-api-fallback');
 
-let publicDir = '../public/';
+let publicDir = 'public/';
 
 mix.options({
     terser: {
@@ -49,7 +49,7 @@ if (!mix.inProduction()) {
         proxy: false,
         port: '3000',
         server: {
-            baseDir: '../public',
+            baseDir: 'public',
             middleware: [
                 HistoryFallback()
             ]

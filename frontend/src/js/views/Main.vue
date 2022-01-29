@@ -40,7 +40,7 @@
 import axios from 'axios';
 
 const URL = 'http://127.0.0.1:3333/api/v1';
-// const URL = '/test_data/';
+// const URL = './test_data/';
 
 export default {
     name: 'Main',
