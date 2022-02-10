@@ -2,12 +2,13 @@ package main
 
 import (
 	"embed"
-	_ "github.com/drewkarpov/Jameson/docs"
-	"github.com/drewkarpov/Jameson/pkg/app"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	_ "github.com/drewkarpov/Jameson/docs"
+	"github.com/drewkarpov/Jameson/pkg/app"
 )
 
 // @title Swagger Jameson API

@@ -3,9 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // @Summary get all containers

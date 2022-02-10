@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/drewkarpov/Jameson/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"io"
-	"net/http"
 )
 
 // @Summary create new test container
@@ -216,12 +217,9 @@ func (h *Handler) GetPreparedTestData(c *gin.Context) {
 			}
 		}
 	}
-	if &result == nil {
+
+	if result.Images.DiffId == "" {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot test with id %s", testId), nil)
-		return
-	}
-	if !isExists {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot find container with test result id %s", testId), nil)
 		return
 	}
 

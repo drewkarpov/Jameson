@@ -5,6 +5,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/drewkarpov/Jameson/config"
 	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/drewkarpov/Jameson/pkg/utils"
@@ -12,8 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"time"
 )
 
 type MongoImageService struct {

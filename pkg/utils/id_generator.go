@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/hex"
+
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 )
 

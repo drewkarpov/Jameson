@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"embed"
+	"net/http"
+
 	_ "github.com/drewkarpov/Jameson/docs"
 	"github.com/drewkarpov/Jameson/pkg/service"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
-	"net/http"
 )
 
 type Handler struct {
