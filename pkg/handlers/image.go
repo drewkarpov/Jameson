@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	mdl "github.com/drewkarpov/Jameson/pkg/model"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary image

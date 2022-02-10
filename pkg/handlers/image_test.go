@@ -2,15 +2,16 @@ package handlers
 
 import (
 	"bytes"
-	mockservice "github.com/drewkarpov/Jameson/pkg/service/mocks"
-	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 	"image"
 	"image/png"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	mockservice "github.com/drewkarpov/Jameson/pkg/service/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_GetImage(t *testing.T) {

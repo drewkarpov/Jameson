@@ -139,6 +139,21 @@ func (mr *MockImageServiceMockRecorder) GetContainerByName(name interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainerByName", reflect.TypeOf((*MockImageService)(nil).GetContainerByName), name)
 }
 
+// GetContainerByTestId mocks base method.
+func (m *MockImageService) GetContainerByTestId(testId string) (*model.TestContainer, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContainerByTestId", testId)
+	ret0, _ := ret[0].(*model.TestContainer)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetContainerByTestId indicates an expected call of GetContainerByTestId.
+func (mr *MockImageServiceMockRecorder) GetContainerByTestId(testId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainerByTestId", reflect.TypeOf((*MockImageService)(nil).GetContainerByTestId), testId)
+}
+
 // GetContainers mocks base method.
 func (m *MockImageService) GetContainers() []model.TestContainer {
 	m.ctrl.T.Helper()
@@ -199,10 +214,10 @@ func (mr *MockImageServiceMockRecorder) UploadImage(data interface{}) *gomock.Ca
 }
 
 // WritingTestResultToContainer mocks base method.
-func (m *MockImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*model.TestResult, error) {
+func (m *MockImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*model.Test, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WritingTestResultToContainer", candidate, result, percentage, containerId)
-	ret0, _ := ret[0].(*model.TestResult)
+	ret0, _ := ret[0].(*model.Test)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

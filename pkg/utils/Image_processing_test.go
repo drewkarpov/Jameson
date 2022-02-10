@@ -2,10 +2,11 @@ package utils
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSqDiffUInt32(t *testing.T) {
@@ -45,7 +46,7 @@ func TestGetImageDifference(t *testing.T) {
 			name:               "images have diff",
 			candidate:          "../../test_data/ref1.png",
 			reference:          "../../test_data/ref2.png",
-			expectedPercentage: 11365.422755233396,
+			expectedPercentage: 11.365422755195668,
 			resultBuffLength:   11601,
 		},
 		{

@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"bytes"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/drewkarpov/Jameson/pkg/model"
 	mockservice "github.com/drewkarpov/Jameson/pkg/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHandler_CreateProject(t *testing.T) {
