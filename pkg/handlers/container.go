@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-
+	"github.com/drewkarpov/Jameson/pkg/image"
+	img "github.com/drewkarpov/Jameson/pkg/image"
 	mdl "github.com/drewkarpov/Jameson/pkg/model"
 	"github.com/drewkarpov/Jameson/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"io"
+	"net/http"
 )
 
 // @Summary create new test container
@@ -138,7 +139,17 @@ func (h *Handler) PerformTest(c *gin.Context) {
 		return
 	}
 
-	resultImage, percentage, err := utils.GetImageDifference(reference, candidate)
+	var resultImage []byte
+	var percentage float64
+
+	if container.VoidZones != nil && len(container.VoidZones) > 0 {
+		resultImage, percentage, err = image.GetImageDifference(
+			img.GetImageWithVoidZones(reference, container.VoidZones),
+			img.GetImageWithVoidZones(candidate, container.VoidZones))
+	} else {
+		resultImage, percentage, err = image.GetImageDifference(reference, candidate)
+	}
+
 	if err != nil {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "images have difference by bound", err)
 		return
@@ -190,7 +201,7 @@ func (h *Handler) DeleteContainer(c *gin.Context) {
 
 // @Summary get result test data
 // @Description get test by id
-// @ID set image
+// @ID get result test data
 // @Accept  json
 // @Produce  json
 // @Param test path string true "test"
@@ -224,6 +235,35 @@ func (h *Handler) GetPreparedTestData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// @Summary add voidzone for reference
+// @Description string container_id
+// @ID add voidzone for reference
+// @Accept  json
+// @Produce  json
+// @Param container path string true "container_id"
+// @Param voidzones_array body []img.VoidZone true "body"
+// @Success 200 {object} mdl.successResponse
+// @Failure 400,422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Router /container/{container}/add/voidzone [post]
+func (h *Handler) AddVoidZoneForReference(c *gin.Context) {
+	containerId := c.Param("container")
+	var voidZone []img.VoidZone
+	err := json.NewDecoder(c.Request.Body).Decode(&voidZone)
+
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "invalid request body", err)
+		return
+	}
+
+	err = h.Service.AddVoidZonesForReference(containerId, voidZone)
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot set new reference reference for container id "+containerId, err)
+		return
+	}
+	mdl.NewSuccessResponse(c, "add void zone for container reference")
 }
 
 func excludeFileBytes(c *gin.Context) ([]byte, error) {

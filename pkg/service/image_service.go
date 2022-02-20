@@ -1,6 +1,9 @@
 package service
 
-import mdl "github.com/drewkarpov/Jameson/pkg/model"
+import (
+	"github.com/drewkarpov/Jameson/pkg/image"
+	mdl "github.com/drewkarpov/Jameson/pkg/model"
+)
 
 //go:generate mockgen -source=image_service.go -destination=mocks/mock.go
 
@@ -18,4 +21,5 @@ type ImageService interface {
 	UploadImage(data []byte) (*string, error)
 	DownloadImage(fileName string) ([]byte, error)
 	GetContainerByTestId(testId string) (*mdl.TestContainer, bool)
+	AddVoidZonesForReference(containerId string, zones []image.VoidZone) error
 }

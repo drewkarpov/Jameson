@@ -4,7 +4,9 @@ package service
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"github.com/drewkarpov/Jameson/pkg/image"
 	"log"
 	"time"
 
@@ -92,6 +94,18 @@ func (ms MongoImageService) SetNewReferenceForContainer(containerId string, refe
 		return false, nil
 	}
 	return ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"reference_id": reference.ID}})
+}
+
+func (ms MongoImageService) AddVoidZonesForReference(containerId string, zones []image.VoidZone) error {
+	_, isExists := ms.GetContainerById(containerId)
+	if !isExists {
+		return errors.New(fmt.Sprintf("cannot find container with id %s", containerId))
+	}
+	isSuccess, err := ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$set": bson.M{"void_zones": zones}})
+	if err != nil || !isSuccess {
+		return err
+	}
+	return nil
 }
 
 func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.Test, error) {

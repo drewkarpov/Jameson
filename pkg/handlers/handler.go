@@ -40,6 +40,7 @@ func (h *Handler) InitRoutes(fs embed.FS) *gin.Engine {
 		container := api.Group("/container")
 		{
 			container.POST("/:container/perform/test", h.PerformTest)
+			container.POST("/:container/add/voidzone", h.AddVoidZoneForReference)
 			container.PATCH("/:container/approve", h.ApproveReference)
 			container.PATCH("/:container/change/reference", h.SetNewReference)
 			container.DELETE("/:container/delete", h.DeleteContainer)

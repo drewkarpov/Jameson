@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  image.VoidZone:
+    properties:
+      height:
+        type: integer
+      offset_x:
+        type: integer
+      offset_y:
+        type: integer
+      width:
+        type: integer
+    type: object
   model.ImagesContainer:
     properties:
       candidate:
@@ -52,6 +63,10 @@ definitions:
       tests:
         items:
           $ref: '#/definitions/model.Test'
+        type: array
+      void_zones:
+        items:
+          $ref: '#/definitions/image.VoidZone'
         type: array
     type: object
   model.TestResult:
@@ -112,6 +127,50 @@ paths:
           schema:
             type: string
       summary: create project
+  /container/{container}/add/voidzone:
+    post:
+      consumes:
+      - application/json
+      description: string container_id
+      operationId: add voidzone for reference
+      parameters:
+      - description: container_id
+        in: path
+        name: container
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: voidzones_array
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/image.VoidZone'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: add voidzone for reference
   /container/{container}/approve:
     patch:
       consumes:
@@ -385,9 +444,10 @@ paths:
     get:
       consumes:
       - application/json
+      description: get test by id
       operationId: get result test data
       parameters:
-      - description: test_id
+      - description: test
         in: path
         name: test
         required: true
@@ -411,5 +471,9 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: get test data
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: get result test data
 swagger: "2.0"

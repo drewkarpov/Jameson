@@ -70,6 +70,72 @@ var doc = `{
                 }
             }
         },
+        "/container/{container}/add/voidzone": {
+            "post": {
+                "description": "string container_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add voidzone for reference",
+                "operationId": "add voidzone for reference",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "container_id",
+                        "name": "container",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "voidzones_array",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/image.VoidZone"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.successResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/container/{container}/approve": {
             "patch": {
                 "description": "string container_id",
@@ -475,18 +541,19 @@ var doc = `{
         },
         "/test/{test}": {
             "get": {
+                "description": "get test by id",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get test data",
+                "summary": "get result test data",
                 "operationId": "get result test data",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "test_id",
+                        "description": "test",
                         "name": "test",
                         "in": "path",
                         "required": true
@@ -516,12 +583,35 @@ var doc = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "image.VoidZone": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "integer"
+                },
+                "offset_x": {
+                    "type": "integer"
+                },
+                "offset_y": {
+                    "type": "integer"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.ImagesContainer": {
             "type": "object",
             "properties": {
@@ -602,6 +692,12 @@ var doc = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Test"
+                    }
+                },
+                "void_zones": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/image.VoidZone"
                     }
                 }
             }
