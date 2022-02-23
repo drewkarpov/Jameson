@@ -165,6 +165,27 @@ func (h *Handler) PerformTest(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// @Summary container by id
+// @ID set container by id
+// @Accept  json
+// @Produce  json
+// @Param container path string true "container_id"
+// @Success 200 {object} mdl.TestContainer
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Router /container/{container} [get]
+func (h *Handler) GetContainerById(c *gin.Context) {
+	containerId := c.Param("container")
+	container, _ := h.Service.GetContainerById(containerId)
+
+	if container == nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot find container with id "+containerId, nil)
+		return
+	}
+	c.Header("content-type", "application/json")
+	c.JSON(http.StatusOK, container)
+}
+
 // @Summary all containers
 // @ID get_containers
 // @Accept  json
