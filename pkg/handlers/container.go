@@ -244,6 +244,7 @@ func (h *Handler) GetPreparedTestData(c *gin.Context) {
 	for _, test := range container.Tests {
 		if test.ID == testId {
 			result = mdl.ResultContainer{
+				TestId:     testId,
 				Percentage: test.Result.Percentage,
 				Images:     mdl.ImagesContainer{DiffId: test.Result.ID, CandidateId: test.CandidateId, ReferenceId: container.ReferenceId},
 			}

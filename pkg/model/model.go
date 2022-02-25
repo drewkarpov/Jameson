@@ -29,6 +29,7 @@ type TestResult struct {
 }
 
 type ResultContainer struct {
+	TestId     string          `json:"test_id"`
 	Percentage float64         `json:"percentage"`
 	Images     ImagesContainer `json:"images"`
 }
