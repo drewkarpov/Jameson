@@ -23,7 +23,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host 127.0.0.1:3333
+// @host 127.0.0.1:3000
 // @BasePath /api/v1
 // @query.collection.format multi
 
@@ -38,7 +38,7 @@ func main() {
 	router := application.Handler.InitRoutes(fs)
 
 	go func() {
-		err := http.ListenAndServe(":3333", router)
+		err := http.ListenAndServe(":3000", router)
 		shutdown <- err
 	}()
 
