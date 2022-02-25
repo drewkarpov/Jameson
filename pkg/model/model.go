@@ -3,7 +3,7 @@ package model
 import "github.com/drewkarpov/Jameson/pkg/image"
 
 type Project struct {
-	ID   string `json:"id" bson:"id"`
+	ID   string `json:"id,omitempty" bson:"id"`
 	Name string `json:"name" bson:"name"`
 }
 

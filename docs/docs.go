@@ -455,6 +455,17 @@ var doc = `{
                 ],
                 "summary": "create project",
                 "operationId": "creat_project",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Project"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

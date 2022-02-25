@@ -424,6 +424,13 @@ paths:
       consumes:
       - application/json
       operationId: creat_project
+      parameters:
+      - description: body
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/model.Project'
       produces:
       - application/json
       responses:

@@ -31,6 +31,7 @@ func (h *Handler) GetProjects(c *gin.Context) {
 // @ID creat_project
 // @Accept  json
 // @Produce  json
+// @Param project body mdl.Project true "body"
 // @Success 200 {object} mdl.Project
 // @Failure 422,404 {object} mdl.errorResponse
 // @Failure 500 {object} string
