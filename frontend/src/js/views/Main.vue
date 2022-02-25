@@ -39,7 +39,7 @@
 <script>
 import axios from 'axios';
 
-const URL = 'http://127.0.0.1:3333/api/v1';
+const URL = 'http://testing.rezero.pro/api/v1';
 // const URL = './test_data/';
 
 export default {
