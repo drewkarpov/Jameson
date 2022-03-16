@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -24,7 +25,7 @@ func (h *Handler) GetImage(c *gin.Context) {
 	imageId := c.Param("image")
 	buff, err := h.Service.DownloadImage(imageId + ".png")
 	if err != nil {
-		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot download image from db", err)
+		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot download image %s from db", imageId), err)
 		return
 	}
 
