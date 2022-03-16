@@ -248,6 +248,7 @@ func (h *Handler) GetPreparedTestData(c *gin.Context) {
 				Percentage: test.Result.Percentage,
 				Images:     mdl.ImagesContainer{DiffId: test.Result.ID, CandidateId: test.CandidateId, ReferenceId: container.ReferenceId},
 			}
+			break
 		}
 	}
 
