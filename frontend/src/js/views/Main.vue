@@ -5,7 +5,7 @@
                 <b-form-input v-model="testId" @keyup.enter="update()" placeholder="Test Id"></b-form-input>
             </b-col>
             <b-col>
-                <b-button block variant="info" @click="update">Update</b-button>
+                <b-button block variant="primary" @click="update">Update</b-button>
             </b-col>
         </b-row>
 
@@ -37,10 +37,7 @@
 
 
 <script>
-import axios from 'axios';
-
-const URL = 'https://testing.rezero.pro/api/v1';
-// const URL = './test_data/';
+import api from '../app/api'
 
 export default {
     name: 'Main',
@@ -68,7 +65,7 @@ export default {
             if (this.testId) {
                 if (this.testId !== this.testIdParam) {
                     this.$router.push({
-                        name: 'project',
+                        name: 'test',
                         params: {testIdParam: this.testId}
                     })
 
@@ -79,12 +76,11 @@ export default {
             }
         },
         getData(testId) {
-            axios
-                .get(URL + '/test/' + testId)
+            api.getTest(testId)
                 .then(response => {
                     const imagesList = response.data.images;
                     for (let key in imagesList) {
-                        imagesList[key] = URL + '/image/' + imagesList[key];
+                        imagesList[key] = api.getImageURL(imagesList[key]);
                     }
 
                     this.images = imagesList;

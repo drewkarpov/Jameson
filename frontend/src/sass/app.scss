@@ -35,3 +35,13 @@
     color: #c74e4e;
     font-weight: bold;
 }
+
+.router-link {
+    padding: 0.2rem 0.5rem;
+}
+
+.router-link-active,
+.router-link-active:hover {
+    color: white;
+    background-color: #007bff;
+}
