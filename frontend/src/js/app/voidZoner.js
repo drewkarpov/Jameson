@@ -1,34 +1,44 @@
 import api from './api';
 
-const FILL_COLOR = 'cyan';
-const STROKE_COLOR = 'magenta';
+const FILL_COLOR = 'transparent';
+const STROKE_COLOR = 'black';
 
 export default class VoidZoner {
-  refs;
-  rects;
+  width;
+  height;
+
   containerData;
-  scaleProportion;
+  canvasContainer;
+  scaleFactor;
+
+  isImageLoaded = false;
+  isDrawing = false;
+  isDrawingEnabled = false;
 
   constructor(responseData, refs) {
     this.containerData = responseData;
-    this.refs = refs;
+    this.canvasContainer = refs.canvasContainer;
   }
 
   loadImage(callback) {
     const image = new window.Image();
     image.src = api.getImageURL(this.containerData.reference_id);
     image.onload = () => {
-      let canvasRect = this.refs.canvasContainer?.getBoundingClientRect();
+      let canvasRect = this.canvasContainer?.getBoundingClientRect();
       let stageConfig, rects;
 
       if (canvasRect) {
-        this.scaleProportion = canvasRect.width / image.width;
+        this.isImageLoaded = true;
+        this.width = canvasRect.width;
+        this.height = canvasRect.height;
 
-        image.height = (image.height * canvasRect.width) / image.width;
-        image.width = canvasRect.width;
+        this.scaleFactor = this.width / image.width;
+
+        image.height = (image.height * this.width) / image.width;
+        image.width = this.width;
 
         stageConfig = {
-          width: canvasRect.width,
+          width: this.width,
           height: image.height
         };
 
@@ -41,25 +51,50 @@ export default class VoidZoner {
     };
   }
 
+  renderRect(x, y, width, height) {
+    return {
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+      fill: FILL_COLOR,
+      stroke: STROKE_COLOR,
+      strokeWidth: 3,
+      draggable: true
+    };
+  }
+
   renderRects(list) {
     return list.map((rect) => {
-      let defaultRectConfig = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        fill: FILL_COLOR,
-        stroke: STROKE_COLOR,
-        strokeWidth: 3,
-      };
-
-      defaultRectConfig.x = Math.ceil(rect.offset_x * this.scaleProportion);
-      defaultRectConfig.y = Math.ceil(rect.offset_y * this.scaleProportion);
-      defaultRectConfig.width = Math.ceil(rect.width * this.scaleProportion);
-      defaultRectConfig.height = Math.ceil(rect.height * this.scaleProportion);
-
-      return defaultRectConfig;
+      return this.renderRect(
+          Math.ceil(rect.offset_x * this.scaleFactor),
+          Math.ceil(rect.offset_y * this.scaleFactor),
+          Math.ceil(rect.width * this.scaleFactor),
+          Math.ceil(rect.height * this.scaleFactor)
+      );
     });
+  }
+
+  prepareRects(list) {
+    return list
+        .filter((rect) => (rect.width > 2 && rect.height > 2)) // Filter missclicks
+        .map((rect) => {
+          let rectData = {
+            offset_x: 0,
+            offset_y: 0,
+            width: 0,
+            height: 0
+          };
+
+          if (this.scaleFactor !== 0) {
+            rectData.offset_x = Math.round(rect.x / this.scaleFactor);
+            rectData.offset_y = Math.round(rect.y / this.scaleFactor);
+            rectData.width = Math.round(rect.width / this.scaleFactor);
+            rectData.height = Math.round(rect.height / this.scaleFactor);
+          }
+
+          return rectData;
+        });
   }
 
 };
