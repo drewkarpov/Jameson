@@ -38,6 +38,8 @@ definitions:
         $ref: '#/definitions/model.ImagesContainer'
       percentage:
         type: number
+      test_id:
+        type: string
     type: object
   model.Test:
     properties:

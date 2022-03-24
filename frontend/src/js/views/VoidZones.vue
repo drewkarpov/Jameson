@@ -80,15 +80,19 @@ export default {
             }
 
             return 'outline-primary';
+        },
+
+        containerIdParam() {
+            return this.$route.params?.containerIdParam
         }
     },
-    props: ['containerIdParam'],
     mounted() {
         if (this.containerIdParam) {
             this.containerId = this.containerIdParam;
             this.update();
         }
     },
+
     methods: {
         rectangle() {
             if (this.voidZoner) {

@@ -9,6 +9,7 @@ import {
 } from 'bootstrap-vue'
 
 import Percentage from '../components/Percentage';
+import Description from "../components/Description";
 
 /** Register Global Components */
 export default {
@@ -22,5 +23,6 @@ export default {
     Vue.component('BIconCheck2Circle', BIconCheck2Circle);
 
     Vue.component('percentage', Percentage);
+    Vue.component('description', Description);
   }
 }

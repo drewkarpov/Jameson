@@ -1,7 +1,7 @@
 import api from './api';
 
 const FILL_COLOR = 'transparent';
-const STROKE_COLOR = 'black';
+const STROKE_COLOR = 'blue';
 
 export default class VoidZoner {
   width;

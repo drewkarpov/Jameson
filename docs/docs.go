@@ -711,6 +711,9 @@ var doc = `{
                 },
                 "percentage": {
                     "type": "number"
+                },
+                "test_id": {
+                    "type": "string"
                 }
             }
         },

@@ -5,10 +5,49 @@
                 <h1>Image Comparator</h1>
 
                 <router-link to="/test" class="router-link">Compare</router-link>
-                <router-link to="/voidzones" class="router-link">Define voidzones</router-link>
+                <router-link :to="voidZonesPath" class="router-link">Define voidzones</router-link>
+
+
             </b-col>
         </b-row>
 
-        <router-view/>
+        <router-view @change-container-id="handleChangeContainerId"/>
     </b-container>
 </template>
+<script>
+export default {
+  name: 'App',
+
+  data() {
+    return {
+      containerId: null
+    }
+  },
+
+  computed: {
+    voidZonesPath() {
+      const path = {
+        name: 'container'
+      }
+
+      if(this.containerId) {
+        path.params = {
+          containerIdParam: this.containerId
+        }
+      }
+
+      return path
+    }
+  },
+
+  methods: {
+    handleChangeContainerId(id) {
+      console.log(id)
+      this.containerId =id
+    }
+  }
+
+}
+</script>
+
+
