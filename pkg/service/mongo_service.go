@@ -108,7 +108,7 @@ func (ms MongoImageService) AddVoidZonesForReference(containerId string, zones [
 	return nil
 }
 
-func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.Test, error) {
+func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId, referenceId string) (*mdl.Test, error) {
 	candidateId, err := ms.UploadImage(candidate)
 	if err != nil {
 		return nil, err
@@ -123,7 +123,7 @@ func (ms MongoImageService) WritingTestResultToContainer(candidate, result []byt
 		return nil, err
 	}
 
-	test := mdl.Test{ID: utils.GetNewId(), CandidateId: *candidateId,
+	test := mdl.Test{ID: utils.GetNewId(), CandidateId: *candidateId, ReferenceId: referenceId,
 		Result: mdl.TestResult{ID: *resultId, Percentage: percentage}}
 
 	isSuccess, err := ms.updateTestContainer(bson.M{"id": containerId}, bson.M{"$push": bson.M{"tests": test}})

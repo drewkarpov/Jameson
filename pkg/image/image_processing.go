@@ -1,7 +1,6 @@
 package image
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"image/draw"
@@ -16,10 +15,6 @@ func GetImageDifference(imgBuff1, imgBuff2 []byte) ([]byte, float64, error) {
 	}
 
 	b := img1.Bounds()
-
-	if img1.Bounds() != img2.Bounds() {
-		return nil, 0, errors.New("img1 bounds is not equal img 2 bounds")
-	}
 
 	resultImg := image.NewRGBA(image.Rect(
 		b.Min.X,

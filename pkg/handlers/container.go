@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 // @Summary create new test container
@@ -56,6 +57,25 @@ func (h *Handler) CreateNewTestContainer(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, createdContainer)
+}
+
+// @Summary get test container by name
+// @ID set get_container_by_name
+// @Accept  json
+// @Produce  json
+// @Param test_name query string true "test_name"
+// @Success 200 {object} mdl.TestContainer
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Router /container/ [get]
+func (h *Handler) GetContainerByName(c *gin.Context) {
+	testName := c.Request.URL.Query().Get("test_name")
+	container, isExists := h.Service.GetContainerByName(testName)
+	if !isExists {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "container with name "+testName+" is  not exist", nil)
+		return
+	}
+	c.JSON(http.StatusOK, container)
 }
 
 // @Summary approve reference for container
@@ -155,7 +175,7 @@ func (h *Handler) PerformTest(c *gin.Context) {
 		return
 	}
 
-	result, err := h.Service.WritingTestResultToContainer(candidate, resultImage, percentage, container.ID)
+	result, err := h.Service.WritingTestResultToContainer(candidate, resultImage, percentage, container.ID, container.ReferenceId)
 	if err != nil {
 		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot writing test to container", err)
 		return
@@ -244,9 +264,11 @@ func (h *Handler) GetPreparedTestData(c *gin.Context) {
 	for _, test := range container.Tests {
 		if test.ID == testId {
 			result = mdl.ResultContainer{
-				TestId:     testId,
-				Percentage: test.Result.Percentage,
-				Images:     mdl.ImagesContainer{DiffId: test.Result.ID, CandidateId: test.CandidateId, ReferenceId: container.ReferenceId},
+				TestId:            testId,
+				TestContainerName: container.Name,
+				TestContainerId:   container.ID,
+				Percentage:        test.Result.Percentage,
+				Images:            mdl.ImagesContainer{DiffId: test.Result.ID, CandidateId: test.CandidateId, ReferenceId: test.ReferenceId},
 			}
 			break
 		}
@@ -287,6 +309,36 @@ func (h *Handler) AddVoidZoneForReference(c *gin.Context) {
 		return
 	}
 	mdl.NewSuccessResponse(c, "add void zone for container reference")
+}
+
+// @Summary get reference with image
+// @Description get reference_image_with_voidzones
+// @ID reference_image
+// @Accept  json
+// @Produce  json
+// @Accept  multipart/form-data
+// @Param container path string true "container_id"
+// @Success 200
+// @Failure 422,404 {object} mdl.errorResponse
+// @Failure 500 {object} string
+// @Failure default {object} string
+// @Router /container/{container}/reference/image [get]
+func (h *Handler) GetReferenceImageWithVoidZones(c *gin.Context) {
+	containerId := c.Param("container")
+	container, _ := h.Service.GetContainerById(containerId)
+	buff, err := h.Service.DownloadImage(container.ReferenceId + ".png")
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("cannot download reference image from container %s", containerId), err)
+		return
+	}
+
+	c.Header("Content-Type", "image/png")
+	c.Header("Content-Length", strconv.Itoa(len(buff)))
+
+	_, err = c.Writer.Write(img.GetImageWithVoidZones(buff, container.VoidZones))
+	if err != nil {
+		mdl.NewErrorResponse(c, http.StatusBadRequest, "cannot writing image bytes to response", err)
+	}
 }
 
 func excludeFileBytes(c *gin.Context) ([]byte, error) {

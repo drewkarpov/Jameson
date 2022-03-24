@@ -14,7 +14,7 @@ type ImageService interface {
 	GetContainerByName(name string) (*mdl.TestContainer, bool)
 	GetContainerById(containerId string) (*mdl.TestContainer, bool)
 	ApproveReferenceForContainer(containerId string) (bool, error)
-	WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId string) (*mdl.Test, error)
+	WritingTestResultToContainer(candidate, result []byte, percentage float64, containerId, referenceId string) (*mdl.Test, error)
 	CreateNewTestContainer(testContainer mdl.TestContainer) (*mdl.TestContainer, error)
 	SetNewReferenceForContainer(containerId string, reference mdl.Reference) (bool, error)
 	DeleteContainerById(containerId string) (bool, error)
